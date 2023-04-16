@@ -3,10 +3,22 @@
     <div class="scroll">
       <k-accordion>
         <k-accordion-item title="Best Paths">
-         <k-dropdown icon="circle-o" title="Source:" :options="get_interfaces"
-          :value.sync="source"></k-dropdown>
-         <k-dropdown icon="circle-o" title="Destination:" :options="get_interfaces"
-          :value.sync ="destination"></k-dropdown>
+         <k-input-auto id="source-input" :value.sync="source"
+              title="Source:"
+              tooltip="Source (format: dpid:port_number)"
+              placeholder="Source" icon="circle-o"
+              :candidates="dpids"
+              @focus="fetch_dpids"
+              @blur="onblur_source"
+              ></k-input-auto>    
+         <k-input-auto id="destination-input" :value.sync="destination"
+              title="Destination:"
+              tooltip="Destination (format: dpid:port_number)"
+              placeholder="Destination" icon="circle-o"
+              :candidates="dpids"
+              @focus="fetch_dpids"
+              @blur="onblur_source"
+              ></k-input-auto>
          <k-select icon="link" title="Desired links:" :options="get_links"
           :value.sync ="desired_links"></k-select>
          <k-select icon="link" title="Undesired links:" :options="get_links"
@@ -168,6 +180,39 @@ module.exports = {
       });
 
     },
+    async fetch_dpids() {
+      /*
+      fetches a list of DPIDs (Datapath IDs) and interface information from an API endpoint, 
+      then maps the DPIDs and interface names to a formatted string, 
+      and finally sets the resulting array of strings as the dpids property of the component it belongs to. 
+      If an error occurs during the fetch, it logs the error to the console
+      */
+  try {
+    const response = await fetch('/api/kytos/topology/v3/interfaces');
+    const data = await response.json();
+    const dpids = Object.entries(data.interfaces).map(([key, value]) => {
+      let item = key;
+      if (value.name) {
+        item = `${value.name} - ${item}`;
+      }
+      return item;
+    });
+    this.dpids = dpids;
+  } catch (error) {
+    console.error(error);
+  }
+},
+
+onblur_source: function() {
+  let source = this.source;
+  if (source.lastIndexOf(':') > 0) {
+    let [dpid, port] = source.split(':');
+    this.source_dpid = dpid;
+    this.source_port = port;
+  }
+},
+
+
     show() {
        var content = {
                       "component": 'kytos-pathfinder-k-info-panel-best_path',
@@ -283,6 +328,8 @@ module.exports = {
       desired_links: [],
       undesired_links: [],
       checked_list: [],
+      dpids: [],
+      hasAutoComplete: false,
       metrics:{
         bandwidth: 0,
         reliability: 0,
