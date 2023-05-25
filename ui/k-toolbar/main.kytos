@@ -1,343 +1,431 @@
 <template>
-  <k-toolbar-item icon="compass" tooltip="Napp Pathfinder">
-    <div class="scroll">
-      <k-accordion>
-        <k-accordion-item title="Best Paths">
-         <k-dropdown icon="circle-o" title="Source:" :options="get_interfaces"
-          :value.sync="source"></k-dropdown>
-         <k-dropdown icon="circle-o" title="Destination:" :options="get_interfaces"
-          :value.sync ="destination"></k-dropdown>
-         <k-select icon="link" title="Undesired links:" :options="get_links"
-          :value.sync ="undesired_links"></k-select>
-          <div class="metric">
-            <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'bandwidth'"></k-checkbox>
+    <k-toolbar-item icon="compass" tooltip="Napp Pathfinder">
+      <div class="scroll">
+        <k-accordion>
+          <k-accordion-item title="Best Paths">
+  
+          <!-- this is where the search bars are -->
+  
+           <k-input-auto id="source-input" :value.sync="source"
+                title="Source:"
+                tooltip="Source (format: dpid:port_name)"
+                placeholder="Source" icon="arrow-right"
+                :candidates="dpids"
+                @focus="fetch_dpids"
+                @blur="onblur_dpid"
+                v-if="compexists"
+                ></k-input-auto> 
+           <k-input id="source-input" :value.sync="source"
+                title="Source:"
+                tooltip="Source (format: dpid:port_name)"
+                placeholder="Source" icon="arrow-right"
+                v-else></k-input> 
+           <div class="k-input pathfinder-field-label" :value.sync="this.source_name"
+                >{{this.source_name}}</div> 
+           <k-input-auto id="destination-input" :value.sync="destination"
+                title="Destination:"
+                tooltip="Destination (format: dpid:port_name)"
+                placeholder="Destination" icon="arrow-right"
+                :candidates="dpids"
+                @focus="fetch_dpids"
+                @blur="onblur_dpid"
+                v-if="compexists"
+                ></k-input-auto>
+           <k-input id="destination-input" :value.sync="destination"
+                title="Destination:"
+                tooltip="Destination (format: dpid:port_number)"
+                placeholder="Destination" icon="arrow-right"
+                v-else></k-input>  
+           <div class="k-input pathfinder-field-label" :value.sync="this.destination_name"
+                >{{this.destination_name}}</div>         
+  
+          <!-- end of search bars -->
+  
+           <k-select icon="link" title="Undesired links:" :options="get_links"
+            :value.sync ="undesired_links"></k-select>
+            <div class="metric">
+              <div class="checkbox">
+                <k-checkbox :model.sync = "checked_list" :value = "'bandwidth'"></k-checkbox>
+              </div>
+              <div class="dropdown">
+                <k-dropdown :options="metric_options['bandwidth']" 
+                 :value.sync="is_flexible.bandwidth"></k-dropdown>
+              </div>
+              <k-input icon="arrow-right" :action="function(val) {metrics.bandwidth = parseInt(val)}"></k-input>
             </div>
-            <div class="dropdown">
-              <k-dropdown :options="metric_options['bandwidth']" 
-               :value.sync="is_flexible.bandwidth"></k-dropdown>
+            <div class="metric">
+              <div class="checkbox">
+                <k-checkbox :model.sync = "checked_list" :value = "'reliability'"></k-checkbox>
+              </div>
+              <div class="dropdown">
+                <k-dropdown :options="metric_options['reliability']" 
+                :value.sync="is_flexible.reliability"></k-dropdown>
+              </div>
+              <k-input icon="arrow-right" :action="function(val) {metrics.reliability = parseInt(val)}"></k-input>
             </div>
-            <k-input icon="arrow-right" :action="function(val) {metrics.bandwidth = parseInt(val)}"></k-input>
-          </div>
-          <div class="metric">
-            <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'reliability'"></k-checkbox>
+            <div class="metric">
+              <div class="checkbox">
+                <k-checkbox :model.sync = "checked_list" :value = "'delay'"></k-checkbox>
+              </div>
+              <div class="dropdown">
+                <k-dropdown :options="metric_options['delay']" 
+                :value.sync="is_flexible.delay"></k-dropdown>
+              </div>
+              <k-input icon="arrow-right" :action="function(val) {metrics.delay = parseInt(val)}"></k-input>
             </div>
-            <div class="dropdown">
-              <k-dropdown :options="metric_options['reliability']" 
-              :value.sync="is_flexible.reliability"></k-dropdown>
+            <div class="metric">
+              <div class="checkbox">
+                <k-checkbox :model.sync = "checked_list" :value = "'utilization'"></k-checkbox>
+              </div>
+              <div class="dropdown">
+                <k-dropdown :options="metric_options['utilization']" 
+                :value.sync="is_flexible.utilization"></k-dropdown>
+              </div>
+              <k-input icon="arrow-right" :action="function(val) {metrics.utilization = parseInt(val)}"></k-input>
             </div>
-            <k-input icon="arrow-right" :action="function(val) {metrics.reliability = parseInt(val)}"></k-input>
-          </div>
-          <div class="metric">
-            <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'delay'"></k-checkbox>
+            <div class="metric">
+              <div class="checkbox">
+                <k-checkbox :model.sync = "checked_list" :value = "'priority'"></k-checkbox>
+              </div>
+              <div class="dropdown">
+                <k-dropdown :options="metric_options['priority']" 
+                :value.sync="is_flexible.priority"></k-dropdown>
+              </div>
+              <k-input icon="arrow-right" :action="function(val) {metrics.priority = parseInt(val)}"></k-input>
             </div>
-            <div class="dropdown">
-              <k-dropdown :options="metric_options['delay']" 
-              :value.sync="is_flexible.delay"></k-dropdown>
+            <div class="metric">
+              <div class="checkbox">
+                <k-checkbox :model.sync = "checked_list" :value = "'ownership'"></k-checkbox>
+              </div>
+              <div class="dropdown">
+                <k-dropdown :options="metric_options['ownership']" 
+                :value.sync="is_flexible.ownership"></k-dropdown>
+              </div>
             </div>
-            <k-input icon="arrow-right" :action="function(val) {metrics.delay = parseInt(val)}"></k-input>
-          </div>
-          <div class="metric">
-            <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'utilization'"></k-checkbox>
+            <k-input icon="arrow-right" :value.sync="metrics.ownership"></k-input>
+  
+            <div class="metric">
+              <div>
+                <k-input icon="arrow-right" placeholder="Minimum flexible hits"
+                :action="function (val) {minimum_flexible_hits = parseInt(val)}"></k-input>
+              </div>
             </div>
-            <div class="dropdown">
-              <k-dropdown :options="metric_options['utilization']" 
-              :value.sync="is_flexible.utilization"></k-dropdown>
+  
+            <div class="metric">
+              <div class="dropdown">
+                <k-dropdown title="SPF Attribute" :options="get_spf_attribute_options" 
+                :value.sync="spf_attribute"></k-dropdown>
+              </div>
             </div>
-            <k-input icon="arrow-right" :action="function(val) {metrics.utilization = parseInt(val)}"></k-input>
-          </div>
-          <div class="metric">
-            <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'priority'"></k-checkbox>
+  
+            <div class="metric">
+              <div>
+                <k-input icon="arrow-right" placeholder="SPF max number of paths"
+                :action="function (val) {spf_max_paths = parseInt(val)}"></k-input>
+              </div>
             </div>
-            <div class="dropdown">
-              <k-dropdown :options="metric_options['priority']" 
-              :value.sync="is_flexible.priority"></k-dropdown>
+  
+            <div class="metric">
+              <div>
+                <k-input icon="arrow-right" placeholder="SPF path maximum cost"
+                :action="function (val) {spf_max_path_cost = parseInt(val)}"></k-input>
+              </div>
             </div>
-            <k-input icon="arrow-right" :action="function(val) {metrics.priority = parseInt(val)}"></k-input>
-          </div>
-          <div class="metric">
-            <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'ownership'"></k-checkbox>
-            </div>
-            <div class="dropdown">
-              <k-dropdown :options="metric_options['ownership']" 
-              :value.sync="is_flexible.ownership"></k-dropdown>
-            </div>
-          </div>
-          <k-input icon="arrow-right" :value.sync="metrics.ownership"></k-input>
-
-          <div class="metric">
-            <div>
-              <k-input icon="arrow-right" placeholder="Minimum flexible hits"
-              :action="function (val) {minimum_flexible_hits = parseInt(val)}"></k-input>
-            </div>
-          </div>
-
-          <div class="metric">
-            <div class="dropdown">
-              <k-dropdown title="SPF Attribute" :options="get_spf_attribute_options" 
-              :value.sync="spf_attribute"></k-dropdown>
-            </div>
-          </div>
-
-          <div class="metric">
-            <div>
-              <k-input icon="arrow-right" placeholder="SPF max number of paths"
-              :action="function (val) {spf_max_paths = parseInt(val)}"></k-input>
-            </div>
-          </div>
-
-          <div class="metric">
-            <div>
-              <k-input icon="arrow-right" placeholder="SPF path maximum cost"
-              :action="function (val) {spf_max_path_cost = parseInt(val)}"></k-input>
-            </div>
-          </div>
-
-           <div>
-             <k-button icon="search" title="Search" :on_click="get_paths">
-             </k-button>
-           </div>
-
-        </k-accordion-item>
-      <k-accordion>
-    </div>
-  </k-toolbar-item>
-</template>
-
-<script>
-module.exports = {
-  methods: {
-    get_paths (){
-      var self = this
-      var mandatory_metrics = {}
-      var flexible_metrics = {}
-      for(var checked of self.checked_list) {
-        if (self.is_flexible[checked]) {
-          flexible_metrics[checked] = self.metrics[checked]
-        } else {
-          mandatory_metrics[checked] = self.metrics[checked]
+  
+             <div>
+               <k-button icon="search" title="Search" :on_click="get_paths">
+               </k-button>
+             </div>
+  
+          </k-accordion-item>
+        <k-accordion>
+      </div>
+    </k-toolbar-item>
+  </template>
+  
+  <script>
+  module.exports = {
+    methods: {
+      get_paths (){
+        var self = this
+        var mandatory_metrics = {}
+        var flexible_metrics = {}
+        for(var checked of self.checked_list) {
+          if (self.is_flexible[checked]) {
+            flexible_metrics[checked] = self.metrics[checked]
+          } else {
+            mandatory_metrics[checked] = self.metrics[checked]
+          }
         }
-      }
-
-      var payload = {
-        spf_attribute: self.spf_attribute,
-        mandatory_metrics: self.mandatory_metrics,
-        flexible_metrics: self.flexible_metrics
-      }
-      if (self.source) {
-        payload["source"] = self.source
-      }
-      if (self.destination) {
-        payload["destination"] = self.destination
-      }
-      if (self.undesired_links.length) {
-        payload["undesired_links"] = self.undesired_links
-      }
-      if (Object.keys(mandatory_metrics).length) {
-        payload["mandatory_metrics"] = mandatory_metrics
-      }
-      if (Object.keys(flexible_metrics).length) {
-        payload["flexible_metrics"] = flexible_metrics
-      }
-      if (self.spf_max_paths) {
-        payload["spf_max_paths"] = self.spf_max_paths
-      }
-      if (self.spf_max_path_cost) {
-        payload["spf_max_path_cost"] = self.spf_max_path_cost
-      }
-      if (self.minimum_flexible_hits) {
-        payload["minimum_flexible_hits"] = self.minimum_flexible_hits
-      }
-
-      let request = $.ajax({
-        async: true,
-        dataType: "json",
-        type: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(payload),
-        url: this.$kytos_server_api + "kytos/pathfinder/v3/",
-      });
-      request.done(function(data) {
-          if (data['paths'][0] !== undefined){
+  
+        var payload = {
+          spf_attribute: self.spf_attribute,
+          mandatory_metrics: self.mandatory_metrics,
+          flexible_metrics: self.flexible_metrics
+          }
+          if (self.source) {
+            payload["source"] = self.source
+          }
+          if (self.destination) {
+          payload["destination"] = self.destination
+          }
+          if (self.undesired_links.length) {
+            payload["undesired_links"] = self.undesired_links
+          }
+          if (Object.keys(mandatory_metrics).length) {
+            payload["mandatory_metrics"] = mandatory_metrics
+          }
+          if (Object.keys(flexible_metrics).length) {
+            payload["flexible_metrics"] = flexible_metrics
+          }
+          if (self.spf_max_paths) {
+            payload["spf_max_paths"] = self.spf_max_paths
+          }
+          if (self.spf_max_path_cost) {
+            payload["spf_max_path_cost"] = self.spf_max_path_cost
+          }
+          if (self.minimum_flexible_hits) {
+            payload["minimum_flexible_hits"] = self.minimum_flexible_hits
+          }
+  
+          let request = $.ajax({
+            async: true,
+            dataType: "json",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            url: this.$kytos_server_api + "kytos/pathfinder/v3/",
+          });
+          request.done(function(data) {
+            if (data['paths'][0] !== undefined){
               self.paths = data['paths'];
-          } else {
+            } else {
               self.paths = []
-          }
-        self.show();
-      });
-      request.fail(function(data) {
-        let notification = {
-          icon: 'gear',
-          title: 'Bad request',
-          description: data.status + ': ' + data.responseJSON.description
-        };
-        self.$kytos.$emit("setNotification", notification);
-      });
-    },
-    get_topology(){
-      var self = this
-      $.ajax({
-        async: true,
-        dataType: "json",
-        url: this.$kytos_server_api + "kytos/topology/v3",
-
-        success: function(data) {
-          self.switches = data['topology']['switches']
-          self.links = data['topology']['links']
-        }
-      });
-
-    },
-    show() {
-       var content = {
-                      "component": 'kytos-pathfinder-k-info-panel-best_path',
-                      "content": this.paths,
-                      "icon": "compass",
-                      "title": "Best Paths",
-                      "subtitle": "by kytos/pathfinder"
-                     }
-       this.$kytos.$emit("showInfoPanel", content)
-
-   }
-  },
-
-  computed: {
-    metric_options(){
-      var metric_options = {}
-
-      var bandwidth_options = []
-      var reliability_options = []
-      var delay_options = []
-      var utilization_options = []
-      var priority_options = []
-      var ownership_options = []
-      var spf_attribute_options = []
-
-      bandwidth_options.push({value: false, description: 'Bandwidth', selected: true});
-      bandwidth_options.push({value: true, description: 'Bandwidth (Flexible)'});
-      
-      reliability_options.push({value: false, description: 'Reliability', selected: true});
-      reliability_options.push({value: true, description: 'Reliability (Flexible)'});
-
-      delay_options.push({value: false, description: 'Delay', selected: true});
-      delay_options.push({value: true, description: 'Delay (Flexible)'});
-
-      utilization_options.push({value: false, description: 'Utilization', selected: true});
-      utilization_options.push({value: true, description: 'Utilization (Flexible)'});
-
-      priority_options.push({value: false, description: 'Priority', selected: true});
-      priority_options.push({value: true, description: 'Priority (Flexible)'});
-
-      ownership_options.push({value: false, description: 'Ownership', selected: true});
-      ownership_options.push({value: true, description: 'Ownership (Flexible)'});
-
-      metric_options["bandwidth"] = bandwidth_options
-      metric_options["reliability"] = reliability_options
-      metric_options["delay"] = delay_options
-      metric_options["utilization"] = utilization_options
-      metric_options["priority"] = priority_options
-      metric_options["ownership"] = ownership_options
-
-      return metric_options;
-    },
-    get_interfaces(){
-      var interfaces = []
-      var switch_alias = ""
-      var interface_alias = ""
-      $.each(this.switches, function(key, value){
-        switch_alias = ""
-        if (value.metadata.aliases != undefined && value.metadata.aliases.length != 0){
-          switch_alias = value.metadata.aliases[0]
-        }
-        $.each(value.interfaces, function(key, value){
-          interface_alias = key
-          if (value.metadata.alias != undefined && value.metadata.alias != ""){
-            interface_alias = value.metadata.alias
-          } else if (value.port_number != undefined){
-            interface_alias = value.port_number
-          }
-
-          if (switch_alias != "" && interface_alias != key){
-            renamed = switch_alias + ": " + interface_alias
-            interfaces.push({value: key, description: renamed})
-          } else {
-            interfaces.push({value: key, description: key})
+            }
+              self.show();
+            });
+            request.fail(function(data) {
+            let notification = {
+            icon: 'gear',
+            title: 'Bad request',
+            description: data.status + ': ' + data.responseJSON.description
+          };
+          self.$kytos.$emit("setNotification", notification);
+        });     
+      },
+      get_topology(){
+        var _this = this
+        $.ajax({
+          async: true,
+          dataType: "json",
+          url: this.$kytos_server_api + "kytos/topology/v3",
+  
+          success: function(data) {
+            let _link = data['topology']['links']
+            _this.link_options = [];
+  
+            $.each(_link, function(key, value){
+              if (value.value.link_name !== undefined && value.value.link_name.length !== 0){
+                _this.link_options.push({value:value.id, description:value.value.link_name})
+              } else {
+                _this.link_options.push({value:value.id, description:value.id});
+              }
+            });
           }
         });
-      });
-
-      return interfaces;
-    },
-    get_links(){
-      var links = []
-      $.each(this.links, function(key, value){
-        if (value.metadata.link_name !== undefined && value.metadata.link_name.length !== 0){
-          links.push({value:value.id, description:value.metadata.link_name})
-        } else {
-          links.push({value:value.id, description:value.id});
-        }
-      });
-
-      return links;
-    },
-    get_spf_attribute_options(){
-      return [
-        {value: "hop", description: "hop", selected: true},
-        {value: "delay", description: "delay"},
-        {value: "priority", description: "priority"}
-      ];
-    }
-  },
-
-  created(){
-    this.get_topology();
-  },
-
-  data: function(){
-    return {
-      paths: [],
-      switches: [],
-      links: [],
-      source: "",
-      destination: "",
-      undesired_links: [],
-      checked_list: [],
-      metrics:{
-        bandwidth: 0,
-        reliability: 0,
-        delay: 0,
-        utilization: 0,
-        priority: 0,
-        ownership: ""
       },
-      is_flexible:{
-        bandwidth: false,
-        reliability: false,
-        delay: false,
-        utilization: false,
-        priority: false,
-        ownership: false
+      fetch_dpids: function() {
+        var self = this // create a closure to access component in the callback below
+          dataUrl = "/api/kytos/topology/v3/interfaces"
+          // Autocomplete usage example.
+          fetch(dataUrl).then(response => response.json())
+                      .then(data => {
+                          dpids = []
+                          for ( const [key,value] of Object.entries( data.interfaces ) ) {
+                              let item = key;
+                              if(value.name) {
+                                  item = value.name+ " - " + item;
+                              
+                              }
+                              dpids.push(item);
+                          }
+                          self.dpids = dpids;
+                      });
       },
-      spf_attribute: "hop",
-      spf_max_paths: 2,
-      spf_max_path_cost: null,
-      minimum_flexible_hits: null
+  
+      onblur_dpid: function() {
+        let source_interface = this.source;
+        if(source_interface.lastIndexOf(' ') > 0) {
+          let splitted_source = source_interface.split(' ');
+          this.source_name= splitted_source[0];
+          this.source = splitted_source[2];
+          }
+          
+          let destination_interface = this.destination;
+          if(destination_interface.lastIndexOf(' ') > 0) {
+              let splitted_destination = destination_interface.split(' ');
+              this.destination_name = splitted_destination[0];
+              this.destination = splitted_destination[2];
+          }
+      },
+  
+      show() {
+         var content = {
+                        "component": 'kytos-pathfinder-k-info-panel-best_path',
+                        "content": this.paths,
+                        "icon": "compass",
+                        "title": "Best Paths",
+                        "subtitle": "by kytos/pathfinder"
+                       }
+         this.$kytos.$emit("showInfoPanel", content)
+  
+     }
+    },
+  
+    computed: {
+      metric_options(){
+        var metric_options = {}
+  
+        var bandwidth_options = []
+        var reliability_options = []
+        var delay_options = []
+        var utilization_options = []
+        var priority_options = []
+        var ownership_options = []
+        var spf_attribute_options = []
+  
+        bandwidth_options.push({value: false, description: 'Bandwidth', selected: true});
+        bandwidth_options.push({value: true, description: 'Bandwidth (Flexible)'});
+        
+        reliability_options.push({value: false, description: 'Reliability', selected: true});
+        reliability_options.push({value: true, description: 'Reliability (Flexible)'});
+  
+        delay_options.push({value: false, description: 'Delay', selected: true});
+        delay_options.push({value: true, description: 'Delay (Flexible)'});
+  
+        utilization_options.push({value: false, description: 'Utilization', selected: true});
+        utilization_options.push({value: true, description: 'Utilization (Flexible)'});
+  
+        priority_options.push({value: false, description: 'Priority', selected: true});
+        priority_options.push({value: true, description: 'Priority (Flexible)'});
+  
+        ownership_options.push({value: false, description: 'Ownership', selected: true});
+        ownership_options.push({value: true, description: 'Ownership (Flexible)'});
+  
+        metric_options["bandwidth"] = bandwidth_options
+        metric_options["reliability"] = reliability_options
+        metric_options["delay"] = delay_options
+        metric_options["utilization"] = utilization_options
+        metric_options["priority"] = priority_options
+        metric_options["ownership"] = ownership_options
+  
+        return metric_options;
+      },
+      get_interfaces(){
+        var interfaces = []
+        var switch_alias = ""
+        var interface_alias = ""
+        $.each(this.switches, function(key, value){
+          switch_alias = ""
+          if (value.metadata.aliases != undefined && value.metadata.aliases.length != 0){
+            switch_alias = value.metadata.aliases[0]
+          }
+          $.each(value.interfaces, function(key, value){
+            interface_alias = key
+            if (value.metadata.alias != undefined && value.metadata.alias != ""){
+              interface_alias = value.metadata.alias
+            } else if (value.port_number != undefined){
+              interface_alias = value.port_number
+            }
+  
+            if (switch_alias != "" && interface_alias != key){
+              renamed = switch_alias + ": " + interface_alias
+              interfaces.push({value: key, description: renamed})
+            } else {
+              interfaces.push({value: key, description: key})
+            }
+          });
+        });
+  
+        return interfaces;
+      },
+      get_links(){
+        var links = []
+        $.each(this.links, function(key, value){
+          if (value.metadata.link_name !== undefined && value.metadata.link_name.length !== 0){
+            links.push({value:value.id, description:value.metadata.link_name})
+          } else {
+            links.push({value:value.id, description:value.id});
+          }
+        });
+  
+        return links;
+      },
+      get_spf_attribute_options(){
+        return [
+          {value: "hop", description: "hop", selected: true},
+          {value: "delay", description: "delay"},
+          {value: "priority", description: "priority"}
+        ];
+      }
+    },
+  
+    created(){
+      this.get_topology();
+    },
+  
+    data: function(){
+      return {
+        paths: [],
+        switches: [],
+        links: [],
+        source: "",
+        destination: "",
+        desired_links: [],
+        undesired_links: [],
+        checked_list: [],
+        dpids: [],
+        hasAutoComplete: false,
+        metrics:{
+          bandwidth: 0,
+          reliability: 0,
+          delay: 0,
+          utilization: 0,
+          priority: 0,
+          ownership: ""
+        },
+        is_flexible:{
+          bandwidth: false,
+          reliability: false,
+          delay: false,
+          utilization: false,
+          priority: false,
+          ownership: false
+        },
+        spf_attribute: "hop",
+        spf_max_paths: 2,
+        spf_max_path_cost: null,
+        minimum_flexible_hits: null
+      }
     }
   }
-}
-</script>
+  </script>
+  <style type="text/css">
+    .scroll {overflow-y: auto; height:calc(100vh - 60px);}
+    .pathfinder-field-label {
+      padding-left: 2.3em;
+      color: #737373;
+      height: 1.1em;
+      padding-top: 0.4em;
+    }
 
-<style type="text/css">
-  body {overflow-y:hidden;}
-  .scroll {overflow-y: auto; height:calc(100vh - 60px);}
-  .metric {width:100%; overflow: hidden;}
-  .checkbox {width:10%; float: left;}
-  .dropdown {width:90%; float: left;}
-  .text {font-size: 75%; float: left; margin-top: 1vh;}
-  .title {font-size: 105%; font-weight: bold; float: left; margin-top: 1vh;}
-</style>
+
+    body {overflow-y:hidden;}
+    .scroll {overflow-y: auto; height:calc(100vh - 60px);}
+    .metric {width:100%; overflow: hidden;}
+    .checkbox {width:10%; float: left;}
+    .dropdown {width:90%; float: left;}
+    .text {font-size: 75%; float: left; margin-top: 1vh;}
+    .title {font-size: 105%; font-weight: bold; float: left; margin-top: 1vh;}
+  </style>
+  
