@@ -2,16 +2,13 @@
     <k-toolbar-item icon="compass" tooltip="Napp Pathfinder">
       <div class="scroll">
         <k-accordion>
-          <k-accordion-item title="Best Paths">
-  
-          <!-- this is where the search bars are -->
-  
+          <k-accordion-item title="Best Paths"> 
            <k-input-auto id="source-input" :value.sync="source"
                 title="Source:"
                 tooltip="Source (format: dpid:port_name)"
                 placeholder="Source" icon="arrow-right"
                 :candidates="dpids"
-                @focus="fetch_dpids"
+                @focus="fetch_interfaces"
                 @blur="onblur_dpid"
                 v-if="compexists"
                 ></k-input-auto> 
@@ -27,7 +24,7 @@
                 tooltip="Destination (format: dpid:port_name)"
                 placeholder="Destination" icon="arrow-right"
                 :candidates="dpids"
-                @focus="fetch_dpids"
+                @focus="fetch_interfaces"
                 @blur="onblur_dpid"
                 v-if="compexists"
                 ></k-input-auto>
@@ -37,10 +34,7 @@
                 placeholder="Destination" icon="arrow-right"
                 v-else></k-input>  
            <div class="k-input pathfinder-field-label" :value.sync="this.destination_name"
-                >{{this.destination_name}}</div>         
-  
-          <!-- end of search bars -->
-  
+                >{{this.destination_name}}</div>    
            <k-select icon="link" title="Undesired links:" :options="get_links"
             :value.sync ="undesired_links"></k-select>
             <div class="metric">
@@ -103,40 +97,34 @@
               </div>
             </div>
             <k-input icon="arrow-right" :value.sync="metrics.ownership"></k-input>
-  
             <div class="metric">
               <div>
                 <k-input icon="arrow-right" placeholder="Minimum flexible hits"
                 :action="function (val) {minimum_flexible_hits = parseInt(val)}"></k-input>
               </div>
             </div>
-  
             <div class="metric">
               <div class="dropdown">
                 <k-dropdown title="SPF Attribute" :options="get_spf_attribute_options" 
                 :value.sync="spf_attribute"></k-dropdown>
               </div>
             </div>
-  
             <div class="metric">
               <div>
                 <k-input icon="arrow-right" placeholder="SPF max number of paths"
                 :action="function (val) {spf_max_paths = parseInt(val)}"></k-input>
               </div>
             </div>
-  
             <div class="metric">
               <div>
                 <k-input icon="arrow-right" placeholder="SPF path maximum cost"
                 :action="function (val) {spf_max_path_cost = parseInt(val)}"></k-input>
               </div>
             </div>
-  
              <div>
                <k-button icon="search" title="Search" :on_click="get_paths">
                </k-button>
              </div>
-  
           </k-accordion-item>
         <k-accordion>
       </div>
@@ -157,7 +145,6 @@
             mandatory_metrics[checked] = self.metrics[checked]
           }
         }
-  
         var payload = {
           spf_attribute: self.spf_attribute,
           mandatory_metrics: self.mandatory_metrics,
@@ -187,7 +174,6 @@
           if (self.minimum_flexible_hits) {
             payload["minimum_flexible_hits"] = self.minimum_flexible_hits
           }
-  
           let request = $.ajax({
             async: true,
             dataType: "json",
@@ -219,7 +205,6 @@
           async: true,
           dataType: "json",
           url: this.$kytos_server_api + "kytos/topology/v3",
-  
           success: function(data) {
             let _link = data['topology']['links']
             _this.link_options = [];
@@ -234,25 +219,28 @@
           }
         });
       },
-      fetch_dpids: function() {
-        var self = this // create a closure to access component in the callback below
-          dataUrl = "/api/kytos/topology/v3/interfaces"
-          // Autocomplete usage example.
-          fetch(dataUrl).then(response => response.json())
-                      .then(data => {
-                          dpids = []
-                          for ( const [key,value] of Object.entries( data.interfaces ) ) {
-                              let item = key;
-                              if(value.name) {
-                                  item = value.name+ " - " + item;
-                              
-                              }
-                              dpids.push(item);
-                          }
-                          self.dpids = dpids;
-                      });
+      fetch_interfaces: function() {
+        var self = this;
+        var dataUrl = "/api/kytos/topology/v3/interfaces";
+        fetch(dataUrl)
+          .then(response => response.json())
+          .then(data => {
+            var dpids = [];
+            for (const [key, value] of Object.entries(data.interfaces)) {
+              let item = key;
+              if (value.metadata && value.metadata.port_name) {
+                item = value.metadata.port_name + " - " + item;
+              } else {
+                item = value.name + " - " + item;
+              }
+              dpids.push(item);
+            }
+            self.dpids = dpids;
+          })
+          .catch(error => {
+            console.error("Error fetching interfaces:", error);
+          });
       },
-  
       onblur_dpid: function() {
         let source_interface = this.source;
         if(source_interface.lastIndexOf(' ') > 0) {
@@ -268,7 +256,6 @@
               this.destination = splitted_destination[2];
           }
       },
-  
       show() {
          var content = {
                         "component": 'kytos-pathfinder-k-info-panel-best_path',
@@ -281,7 +268,6 @@
   
      }
     },
-  
     computed: {
       metric_options(){
         var metric_options = {}
@@ -369,11 +355,9 @@
         ];
       }
     },
-  
     created(){
       this.get_topology();
     },
-  
     data: function(){
       return {
         paths: [],
@@ -418,8 +402,6 @@
       height: 1.1em;
       padding-top: 0.4em;
     }
-
-
     body {overflow-y:hidden;}
     .scroll {overflow-y: auto; height:calc(100vh - 60px);}
     .metric {width:100%; overflow: hidden;}
