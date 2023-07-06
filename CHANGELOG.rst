@@ -20,6 +20,12 @@ Removed
 =======
 - ``desired_links`` is no longer supported. If used to use ``desired_links`` you can try to parametrize it with a different constraint for instance ``undesired_links`` or with ``mandatory_metrics``.
 - ``POST /v2/`` has been removed
+- Removed ``on_links_metadata_changed`` and topology reconciliation
+
+Changed
+=======
+
+- link metadata changes will be updated via ``kytos/topology.updated``
 
 [2022.3.0] - 2022-12-15
 ***********************
