@@ -6,6 +6,18 @@ All notable changes to the pathfinder NApp will be documented in this file.
 [UNRELEASED] - Under development
 ********************************
 
+[2022.3.1] - 2022-07-06
+***********************
+
+Removed
+=======
+- Removed ``on_links_metadata_changed`` and topology reconciliation
+
+Changed
+=======
+
+- link metadata changes will be updated via ``kytos/topology.updated``
+
 [2022.3.0] - 2022-12-15
 ***********************
 
