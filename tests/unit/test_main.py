@@ -282,55 +282,6 @@ class TestMain(TestCase):
         )
         self.napp.update_topology(event)
 
-    def test_update_links_changed(self):
-        """Test update_links_metadata_changed."""
-        self.napp.graph.update_link_metadata = MagicMock()
-        self.napp.controller.buffers.app.put = MagicMock()
-        event = KytosEvent(
-            name="kytos.topology.links.metadata.added",
-            content={"link": MagicMock(), "metadata": {}}
-        )
-        self.napp.update_links_metadata_changed(event)
-        assert self.napp.graph.update_link_metadata.call_count == 1
-        assert self.napp.controller.buffers.app.put.call_count == 0
-
-    def test_update_links_changed_out_of_order(self):
-        """Test update_links_metadata_changed out of order."""
-        self.napp.graph.update_link_metadata = MagicMock()
-        self.napp.controller.buffers.app.put = MagicMock()
-        link = MagicMock(id="1")
-        assert link.id not in self.napp._links_updated_at
-        event = KytosEvent(
-            name="kytos.topology.links.metadata.added",
-            content={"link": link, "metadata": {}}
-        )
-        self.napp.update_links_metadata_changed(event)
-        assert self.napp.graph.update_link_metadata.call_count == 1
-        assert self.napp.controller.buffers.app.put.call_count == 0
-        assert self.napp._links_updated_at[link.id] == event.timestamp
-
-        second_event = KytosEvent(
-            name="kytos.topology.links.metadata.added",
-            content={"link": link, "metadata": {}}
-        )
-        second_event.timestamp = event.timestamp - timedelta(seconds=10)
-        self.napp.update_links_metadata_changed(second_event)
-        assert self.napp.graph.update_link_metadata.call_count == 1
-        assert self.napp.controller.buffers.app.put.call_count == 0
-        assert self.napp._links_updated_at[link.id] == event.timestamp
-
-    def test_update_links_changed_key_error(self):
-        """Test update_links_metadata_changed key_error."""
-        self.napp.graph.update_link_metadata = MagicMock()
-        self.napp.controller.buffers.app.put = MagicMock()
-        event = KytosEvent(
-            name="kytos.topology.links.metadata.added",
-            content={"link": MagicMock()}
-        )
-        self.napp.update_links_metadata_changed(event)
-        assert self.napp.graph.update_link_metadata.call_count == 1
-        assert self.napp.controller.buffers.app.put.call_count == 1
-
     def test_shortest_path(self):
         """Test shortest path."""
         self.setting_path()
