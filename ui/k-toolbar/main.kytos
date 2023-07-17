@@ -3,10 +3,28 @@
     <div class="scroll">
       <k-accordion>
         <k-accordion-item title="Best Paths">
-         <k-dropdown icon="circle-o" title="Source:" :options="get_interfaces"
-          :value.sync="source"></k-dropdown>
-         <k-dropdown icon="circle-o" title="Destination:" :options="get_interfaces"
-          :value.sync ="destination"></k-dropdown>
+
+          <k-input-auto id="source" :value.sync="source"
+                    title="Source:"
+                    placeholder="Source" icon="arrow-right"
+                    :candidates="interfaces" 
+                    @focus="get_interfaces"
+                    @blur="onblur_interfaces"
+                    >{{ source }}</k-input-auto>
+          <k-input class="k-input interface-label" :value.sync="source_name" icon="none"
+                    >{{ source_name }}</k-input> 
+
+          <k-input-auto id="destination" :value.sync="destination"
+                    title="Destination:"
+                    placeholder="Destination" icon="arrow-right"
+                    :candidates="interfaces" 
+                    @focus="get_interfaces"
+                    @blur="onblur_interfaces"
+                    >{{ destination }}</k-input-auto>
+          <k-input class="k-input interface-label" :value.sync="destination_name" icon="none"
+                    >{{ destination_name }}</k-input> 
+
+
          <k-select icon="link" title="Undesired links:" :options="get_links"
           :value.sync ="undesired_links"></k-select>
           <div class="metric">
@@ -263,15 +281,21 @@ module.exports = {
           }
 
           if (switch_alias != "" && interface_alias != key){
-            renamed = switch_alias + ": " + interface_alias
-            interfaces.push({value: key, description: renamed})
+            description = switch_alias + ": " + interface_alias
+            interfaces.push(description)
           } else {
-            interfaces.push({value: key, description: key})
+            let description = ""
+            if (value.metadata != undefined && value.metadata.port_name != undefined) {
+              description = `${value.metadata.port_name} - ${value.id}`
+            } else {
+              description = `${value.name} - ${value.id}`
+            }
+            interfaces.push(description)
           }
         });
       });
 
-      return interfaces;
+      this.interfaces = interfaces;
     },
     get_links(){
       var links = []
@@ -291,6 +315,21 @@ module.exports = {
         {value: "delay", description: "delay"},
         {value: "priority", description: "priority"}
       ];
+    },
+    onblur_interfaces(){
+      let current_source = this.source;
+      if (current_source.lastIndexOf(' ') > 0) {
+        let splitted_source = current_source.split(' ')
+        this.source_name = splitted_source[0]
+        this.source = splitted_source[splitted_source.length - 1]
+      }
+
+      let current_destination = this.destination;
+      if (current_destination.lastIndexOf(' ') > 0) {
+        let splitted_destination = current_destination.split(' ')
+        this.destination_name = splitted_destination[0]
+        this.destination = splitted_destination[splitted_destination.length - 1]
+      }
     }
   },
 
@@ -302,9 +341,12 @@ module.exports = {
     return {
       paths: [],
       switches: [],
+      interfaces: [],
       links: [],
       source: "",
+      source_name: "",
       destination: "",
+      destination_name: "",
       undesired_links: [],
       checked_list: [],
       metrics:{
@@ -340,4 +382,5 @@ module.exports = {
   .dropdown {width:90%; float: left;}
   .text {font-size: 75%; float: left; margin-top: 1vh;}
   .title {font-size: 105%; font-weight: bold; float: left; margin-top: 1vh;}
+  .interface-label {pointer-events: none; color: #fff;; font-size: 105%;}
 </style>
