@@ -21,6 +21,11 @@ Removed
 - ``desired_links`` is no longer supported. If used to use ``desired_links`` you can try to parametrize it with a different constraint for instance ``undesired_links`` or with ``mandatory_metrics``.
 - ``POST /v2/`` has been removed
 
+Changed
+=======
+- Changed UI ``k-accordion-item`` in best-path.kytos. Interfaces are displayed using their port names or names rather than address. Switches are rendered using node names or id rather than address.
+
+
 [2022.3.0] - 2022-12-15
 ***********************
 
