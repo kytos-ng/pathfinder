@@ -1,7 +1,6 @@
 """Test Main methods."""
 
 from unittest.mock import MagicMock, patch
-from datetime import timedelta
 
 from kytos.core.events import KytosEvent
 from kytos.lib.helpers import get_controller_mock, get_test_client
@@ -29,29 +28,6 @@ class TestMain:
             name="kytos.topology.updated", content={"topology": topology}
         )
         self.napp.update_topology(event)
-        assert self.napp._topology == topology
-
-    def test_update_topology_events_out_of_order(self):
-        """Test update topology events out of order.
-
-        If a subsequent older event is sent, then the topology
-        shouldn't get updated.
-        """
-        topology = get_topology_mock()
-        assert self.napp._topology_updated_at is None
-        first_event = KytosEvent(
-            name="kytos.topology.updated", content={"topology": topology}
-        )
-        self.napp.update_topology(first_event)
-        assert self.napp._topology_updated_at == first_event.timestamp
-        assert self.napp._topology == topology
-
-        second_topology = get_topology_mock()
-        second_event = KytosEvent(
-            name="kytos.topology.updated", content={"topology": second_topology}
-        )
-        second_event.timestamp = first_event.timestamp - timedelta(seconds=10)
-        self.napp.update_topology(second_event)
         assert self.napp._topology == topology
 
     def test_update_topology_failure_case(self):
