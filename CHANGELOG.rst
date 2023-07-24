@@ -10,6 +10,7 @@ Added
 =====
 - ``POST /v3/`` has replaced ``POST /v2/``
 - ``POST /v3/`` now validates its OpenAPI spec
+- Added autocomplete for source and destination
 
 Fixed
 =====
