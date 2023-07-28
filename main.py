@@ -25,8 +25,6 @@ class Main(KytosNApp):
         self.graph = KytosGraph()
         self._topology = None
         self._lock = Lock()
-        self._topology_updated_at = None
-        self._links_updated_at = {}
 
     def execute(self):
         """Do nothing."""
@@ -142,6 +140,7 @@ class Main(KytosNApp):
     @listen_to(
         "kytos.topology.updated",
         "kytos/topology.topology_loaded",
+        pool="dynamic_single"
     )
     def on_topology_updated(self, event):
         """Update the graph when the network topology is updated."""
@@ -153,13 +152,7 @@ class Main(KytosNApp):
             return
         topology = event.content["topology"]
         with self._lock:
-            if (
-                self._topology_updated_at
-                and self._topology_updated_at > event.timestamp
-            ):
-                return
             self._topology = topology
-            self._topology_updated_at = event.timestamp
             self.graph.update_topology(topology)
         switches = list(topology.switches.keys())
         links = list(topology.links.keys())

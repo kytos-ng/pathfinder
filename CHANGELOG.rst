@@ -26,6 +26,7 @@ Changed
 =======
 
 - link metadata changes will be updated via ``kytos/topology.updated``
+- ``on_topology_updated`` has been refactored to use ``dynamic_single`` to simplify ensuring FIFO event processing.
 
 [2022.3.0] - 2022-12-15
 ***********************
