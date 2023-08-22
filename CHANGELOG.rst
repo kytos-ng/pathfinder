@@ -6,6 +6,9 @@ All notable changes to the pathfinder NApp will be documented in this file.
 [UNRELEASED] - Under development
 ********************************
 
+[2023.1.0] - 2023-06-05
+***********************
+
 Added
 =====
 - ``POST /v3/`` has replaced ``POST /v2/``
