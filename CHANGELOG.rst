@@ -6,6 +6,15 @@ All notable changes to the pathfinder NApp will be documented in this file.
 [UNRELEASED] - Under development
 ********************************
 
+Added
+=====
+- Added UI autocomplete for source and destination
+
+Changed
+=======
+- Changed UI ``k-accordion-item`` in best-path.kytos. Interfaces are displayed using their port names or names rather than address. Switches are rendered using node names or id rather than address.
+
+
 [2023.1.0] - 2023-06-05
 ***********************
 
@@ -13,7 +22,6 @@ Added
 =====
 - ``POST /v3/`` has replaced ``POST /v2/``
 - ``POST /v3/`` now validates its OpenAPI spec
-- Added autocomplete for source and destination
 
 Fixed
 =====
@@ -31,10 +39,6 @@ Changed
 
 - link metadata changes will be updated via ``kytos/topology.updated``
 - ``on_topology_updated`` has been refactored to use ``dynamic_single`` to simplify ensuring FIFO event processing.
-
-Changed
-=======
-- Changed UI ``k-accordion-item`` in best-path.kytos. Interfaces are displayed using their port names or names rather than address. Switches are rendered using node names or id rather than address.
 
 
 [2022.3.0] - 2022-12-15
