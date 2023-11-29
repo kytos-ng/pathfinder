@@ -263,6 +263,7 @@ setup(name=f'kytos_{NAPP_NAME}',
       author_email='of-ng-dev@ncc.unesp.br',
       license='MIT',
       install_requires=read_requirements(),
+      packages=[],
       cmdclass={
           'clean': Cleaner,
           'coverage': TestCoverage,
