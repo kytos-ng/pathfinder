@@ -30,6 +30,14 @@ class KytosGraph:
 
     def __init__(self):
         self.graph = nx.Graph()
+        self._accepted_metadata = {
+            'ownership',
+            'bandwidth',
+            'reliability',
+            'priority',
+            'utilization',
+            'delay',
+        }
         self._filter_functions = {
             "ownership": lazy_filter(str, filter_in("ownership")),
             "bandwidth": lazy_filter((int, float), filter_ge("bandwidth")),
@@ -82,7 +90,7 @@ class KytosGraph:
     def update_link_metadata(self, link):
         """Update link metadata."""
         for key, value in link.metadata.items():
-            if key not in self._filter_functions:
+            if key not in self._accepted_metadata:
                 continue
             endpoint_a = link.endpoint_a.id
             endpoint_b = link.endpoint_b.id
