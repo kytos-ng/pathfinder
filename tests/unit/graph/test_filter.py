@@ -2,7 +2,7 @@
 # pylint: disable=protected-access
 from unittest import TestCase
 
-from napps.kytos.pathfinder.utils import lazy_filter
+from napps.kytos.pathfinder.graph.filters import lazy_filter
 from napps.kytos.pathfinder.graph import KytosGraph
 
 

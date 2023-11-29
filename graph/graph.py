@@ -5,10 +5,17 @@ from itertools import combinations, islice
 
 from kytos.core import log
 from kytos.core.common import EntityStatus
-from napps.kytos.pathfinder.utils import (filter_ge, filter_in, filter_le,
-                                          lazy_filter, nx_edge_data_delay,
-                                          nx_edge_data_priority,
-                                          nx_edge_data_weight)
+
+
+from .filters import (filter_ge, filter_in, filter_le,
+                                          lazy_filter)                                          
+from .weights import (nx_edge_data_delay,
+                      nx_edge_data_priority,
+                      nx_edge_data_weight)
+
+
+
+
 
 try:
     import networkx as nx
