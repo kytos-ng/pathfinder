@@ -1,20 +1,14 @@
 """Module Graph of kytos/pathfinder Kytos Network Application."""
 
-# pylint: disable=too-many-arguments,too-many-locals
+# pylint: enable=too-many-arguments,too-many-locals
 from itertools import combinations, islice
+import operator
 
 from kytos.core import log
 from kytos.core.common import EntityStatus
-
-
-from .filters import (filter_ge, filter_in, filter_le,
-                                          lazy_filter)                                          
-from .weights import (nx_edge_data_delay,
-                      nx_edge_data_priority,
-                      nx_edge_data_weight)
-
-
-
+ 
+from .filters import EdgeFilter, TypeCheckPreprocessor                                       
+from .weights import (nx_edge_data_delay, nx_edge_data_priority, nx_edge_data_weight)
 
 
 try:
@@ -39,12 +33,40 @@ class KytosGraph:
             'delay',
         }
         self._filter_functions = {
-            "ownership": lazy_filter(str, filter_in("ownership")),
-            "bandwidth": lazy_filter((int, float), filter_ge("bandwidth")),
-            "reliability": lazy_filter((int, float), filter_ge("reliability")),
-            "priority": lazy_filter((int, float), filter_le("priority")),
-            "utilization": lazy_filter((int, float), filter_le("utilization")),
-            "delay": lazy_filter((int, float), filter_le("delay")),
+            "ownership": EdgeFilter(
+                operator.and_,
+                lambda edge, val: frozenset(edge[2].get('ownership', {}).keys()) or val,
+                TypeCheckPreprocessor(
+                    str,
+                    lambda val: frozenset(val.split(','))
+                )
+            ),
+            "bandwidth": EdgeFilter(
+                operator.ge,
+                'bandwidth',
+                TypeCheckPreprocessor((int, float))
+
+            ),
+            "reliability": EdgeFilter(
+                operator.ge,
+                'reliability',
+                TypeCheckPreprocessor((int, float))
+            ),
+            "priority": EdgeFilter(
+                operator.le,
+                'priority',
+                TypeCheckPreprocessor((int, float))
+            ),
+            "utilization": EdgeFilter(
+                operator.le,
+                'utilization',
+                TypeCheckPreprocessor((int, float))
+            ),
+            "delay": EdgeFilter(
+                operator.le,
+                'delay',
+                TypeCheckPreprocessor((int, float))
+            ),
         }
         self.spf_edge_data_cbs = {
             "hop": nx_edge_data_weight,
