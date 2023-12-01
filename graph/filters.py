@@ -1,30 +1,63 @@
 """Filters for usage in pathfinding."""
 
-def lazy_filter(filter_type, filter_func):
-    """
-    Lazy typed filter on top of the built-in function.
+from dataclasses import dataclass
+from typing import Any, Callable, Iterable, Union
 
-    It's meant to be used when the values to be filtered for
-    are only defined later on dynamically at runtime.
-    """
+EdgeData = tuple[str, str, dict]
+EdgeList = Iterable[EdgeData]
 
-    def filter_closure(value, items):
-        if not isinstance(value, filter_type):
-            raise TypeError(f"Expected type: {filter_type}")
-        return filter(filter_func(value), items)
+EdgeDataExtractor = Callable[[EdgeData, Any], Any]
 
-    return filter_closure
+class EdgeFilter:
 
-def filter_le(metric):
-    """Lazy filter_le."""
-    return lambda x: (lambda nx_edge_tup: nx_edge_tup[2].get(metric, x) <= x)
+    def __init__(
+        self,
+        comparator: Callable[[Any, Any], bool],
+        get_func: Union[EdgeDataExtractor, str],
+        preprocessor: Callable[[Any], Any] = None
+    ):
+        self.comparator = comparator
+        
+        if isinstance(get_func, str):
+            get_str = get_func
+            get_func = lambda edge, val: edge[2].get(get_str, val)
 
+        self.get_func = get_func
 
-def filter_ge(metric):
-    """Lazy filter_ge."""
-    return lambda x: (lambda nx_edge_tup: nx_edge_tup[2].get(metric, x) >= x)
+        self.preprocessor = preprocessor
 
+    def __call__(
+        self,
+        value: Any,
+        items: EdgeList
+    ) -> EdgeList:
+        """Apply the filter given the items and value."""
 
-def filter_in(metric):
-    """Lazy filter_in."""
-    return lambda x: (lambda nx_edge_tup: x in nx_edge_tup[2].get(metric, {x}))
+        # Preprocess the value
+        if self.preprocessor:
+            value = self.preprocessor(value)
+        
+        # Run filter
+        return filter(
+            lambda edge:
+                self.comparator(
+                    self.get_func(edge, value),
+                    value
+            ),
+            items
+        )
+
+@dataclass
+class TypeCheckPreprocessor:
+    types: Union[type, tuple[type]]
+    preprocessor: Callable[[Any], Any] = None
+
+    def __call__(
+        self,
+        value: Any
+    ):
+        if not isinstance(value, self.types):
+            raise TypeError(f"Expected type: {self.types}")
+        if self.preprocessor:
+            return self.preprocessor(value)
+        return value
