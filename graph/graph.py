@@ -43,7 +43,7 @@ class KytosGraph:
             ),
             "not_ownership": EdgeFilter(
                 lambda a, b: not (a & b),
-                lambda edge, _: frozenset(edge[2].get('ownership', '').split(',')),
+                lambda edge, _: frozenset(edge[2].get('ownership', {}).keys()),
                 TypeCheckPreprocessor(
                     str,
                     lambda val: frozenset(val.split(','))
