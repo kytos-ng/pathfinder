@@ -41,6 +41,14 @@ class KytosGraph:
                     lambda val: frozenset(val.split(','))
                 )
             ),
+            "not_ownership": EdgeFilter(
+                lambda a, b: not (a & b),
+                lambda edge, _: frozenset(edge[2].get('ownership', '').split(',')),
+                TypeCheckPreprocessor(
+                    str,
+                    lambda val: frozenset(val.split(','))
+                )
+            ),
             "bandwidth": EdgeFilter(
                 operator.ge,
                 'bandwidth',
