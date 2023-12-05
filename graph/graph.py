@@ -7,7 +7,7 @@ import operator
 from kytos.core import log
 from kytos.core.common import EntityStatus
  
-from .filters import EdgeFilter, TypeCheckPreprocessor                                       
+from .filters import EdgeFilter, ProcessEdgeAttribute, TypeCheckPreprocessor, TypeDifferentiatedProcessor, UseDefaultIfNone, UseValIfNone
 from .weights import (nx_edge_data_delay, nx_edge_data_priority, nx_edge_data_weight)
 
 
@@ -32,10 +32,18 @@ class KytosGraph:
             'utilization',
             'delay',
         }
+        ownership_processor = ProcessEdgeAttribute(
+            'ownership',
+            TypeDifferentiatedProcessor({
+                str: lambda x: frozenset(x.split()),
+                dict: lambda x: frozenset(x.keys()),
+                type(None): None
+            })
+        )
         self._filter_functions = {
             "ownership": EdgeFilter(
                 operator.and_,
-                lambda edge, val: frozenset(edge[2].get('ownership', {}).keys()) or val,
+                UseValIfNone(ownership_processor),
                 TypeCheckPreprocessor(
                     str,
                     lambda val: frozenset(val.split(','))
@@ -43,7 +51,7 @@ class KytosGraph:
             ),
             "not_ownership": EdgeFilter(
                 lambda a, b: not (a & b),
-                lambda edge, _: frozenset(edge[2].get('ownership', {}).keys()),
+                UseDefaultIfNone(ownership_processor, frozenset()),
                 TypeCheckPreprocessor(
                     str,
                     lambda val: frozenset(val.split(','))
