@@ -8,6 +8,38 @@ EdgeList = Iterable[EdgeData]
 
 EdgeDataExtractor = Callable[[EdgeData, Any], Any]
 
+@dataclass
+class UseValIfNone:
+    processor: Callable[[EdgeData], Any]
+
+    def __call__(self, edge: EdgeData, val: Any):
+        result = self.processor(edge)
+        if result is None:
+            return val
+        return result
+    
+@dataclass
+class UseDefaultIfNone:
+    processor: Callable[[EdgeData], Any]
+    default: Any
+
+    def __call__(self, edge: EdgeData, _):
+        result = self.processor(edge)
+        if result is None:
+            return self.default
+        return result
+
+@dataclass
+class ProcessEdgeAttribute:
+    attribute: str
+    processor: Callable[[Any], Any] = None
+
+    def __call__(self, edge: EdgeData):
+        result = edge[2].get(self.attribute)
+        if self.processor:
+            return self.processor(result)
+        return result
+
 class EdgeFilter:
 
     def __init__(
@@ -19,8 +51,7 @@ class EdgeFilter:
         self.comparator = comparator
         
         if isinstance(get_func, str):
-            get_str = get_func
-            get_func = lambda edge, val: edge[2].get(get_str, val)
+            get_func = UseValIfNone(ProcessEdgeAttribute(get_func))
 
         self.get_func = get_func
 
@@ -61,3 +92,18 @@ class TypeCheckPreprocessor:
         if self.preprocessor:
             return self.preprocessor(value)
         return value
+
+@dataclass
+class TypeDifferentiatedProcessor:
+    preprocessors: dict[Union[type, tuple[type]], Callable[[Any], Any]] = None
+
+    def __call__(
+        self,
+        value: Any
+    ):
+        for expected_types, processor in self.preprocessors.items():
+            if isinstance(value, expected_types):
+                if processor:
+                    return processor(value)
+                return value
+        raise TypeError(f"Expected types: {self.preprocessors.keys()}")
