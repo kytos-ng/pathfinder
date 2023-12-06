@@ -42,11 +42,10 @@ class KytosGraph:
         )
         self._filter_functions = {
             "ownership": EdgeFilter(
-                operator.and_,
+                operator.contains,
                 UseValIfNone(ownership_processor),
                 TypeCheckPreprocessor(
-                    str,
-                    lambda val: frozenset(val.split(','))
+                    str
                 )
             ),
             "not_ownership": EdgeFilter(
