@@ -6,6 +6,10 @@ All notable changes to the pathfinder NApp will be documented in this file.
 [UNRELEASED] - Under development
 ********************************
 
+Added
+=====
+- Added ``not_ownership`` as a filter for pathfinding. Pass a list of strings of owners to filter out edges with any of the given owners. 
+
 [2023.1.0] - 2023-06-05
 ***********************
 
