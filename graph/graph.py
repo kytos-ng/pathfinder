@@ -51,10 +51,10 @@ class KytosGraph:
             "not_ownership": EdgeFilter(
                 lambda a, b: not (a & b),
                 UseDefaultIfNone(ownership_processor, frozenset()),
-                TypeCheckPreprocessor(
-                    str,
-                    lambda val: frozenset(val.split(','))
-                )
+                TypeDifferentiatedProcessor({
+                    str: lambda val: frozenset(val.split(',')),
+                    list: lambda val: frozenset(val)
+                })
             ),
             "bandwidth": EdgeFilter(
                 operator.ge,
