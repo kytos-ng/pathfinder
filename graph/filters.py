@@ -81,7 +81,6 @@ class EdgeFilter:
 @dataclass
 class TypeCheckPreprocessor:
     types: Union[type, tuple[type]]
-    preprocessor: Callable[[Any], Any] = None
 
     def __call__(
         self,
@@ -89,8 +88,6 @@ class TypeCheckPreprocessor:
     ):
         if not isinstance(value, self.types):
             raise TypeError(f"Expected type: {self.types}")
-        if self.preprocessor:
-            return self.preprocessor(value)
         return value
 
 @dataclass

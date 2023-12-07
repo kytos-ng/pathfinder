@@ -3,7 +3,8 @@
 from unittest import TestCase
 from unittest.mock import MagicMock
 
-from napps.kytos.pathfinder.graph.filters import TypeCheckPreprocessor
+from napps.kytos.pathfinder.graph.filters import (TypeCheckPreprocessor,
+                                                  TypeDifferentiatedProcessor)
 from napps.kytos.pathfinder.graph import KytosGraph
 
 
@@ -18,8 +19,19 @@ class TestLazyFilter(TestCase):
         """Test filtering with invalid minimum type."""
         wrong_type = "wrong_type"
         right_type = 3
+        preprocessor = TypeCheckPreprocessor(int)
+        with self.assertRaises(TypeError):
+            preprocessor(wrong_type)
+        preprocessor(right_type)
+
+    def test_type_error2(self):
+        """Test filtering with invalid minimum type."""
+        wrong_type = "wrong_type"
+        right_type = 3
         fake_inner = MagicMock()
-        preprocessor = TypeCheckPreprocessor(int, fake_inner)
+        preprocessor = TypeDifferentiatedProcessor({
+                int: fake_inner
+        })
         with self.assertRaises(TypeError):
             preprocessor(wrong_type)
         fake_inner.assert_not_called()
