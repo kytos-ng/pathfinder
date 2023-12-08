@@ -36,8 +36,11 @@ class ProcessEdgeAttribute:
 
     def __call__(self, edge: EdgeData):
         result = edge[2].get(self.attribute)
-        if self.processor:
-            return self.processor(result)
+        try:
+            if self.processor:
+                return self.processor(result)
+        except TypeError as err:
+            raise TypeError(f'({edge[0]}, {edge[1]}) has invalid metadata "{self.attribute}" with value {result!r}: {err}') from err
         return result
 
 class EdgeFilter:
@@ -103,4 +106,4 @@ class TypeDifferentiatedProcessor:
                 if processor:
                     return processor(value)
                 return value
-        raise TypeError(f"Expected types: {self.preprocessors.keys()}")
+        raise TypeError(f"Expected types: {list(self.preprocessors.keys())}")
