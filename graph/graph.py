@@ -43,10 +43,7 @@ class KytosGraph:
         self._filter_functions = {
             "ownership": EdgeFilter(
                 operator.contains,
-                UseValIfNone(ownership_processor),
-                TypeCheckPreprocessor(
-                    str
-                )
+                UseValIfNone(ownership_processor)
             ),
             "not_ownership": EdgeFilter(
                 lambda a, b: not (a & b),
@@ -58,29 +55,23 @@ class KytosGraph:
             ),
             "bandwidth": EdgeFilter(
                 operator.ge,
-                'bandwidth',
-                TypeCheckPreprocessor((int, float))
-
+                'bandwidth'
             ),
             "reliability": EdgeFilter(
                 operator.ge,
-                'reliability',
-                TypeCheckPreprocessor((int, float))
+                'reliability'
             ),
             "priority": EdgeFilter(
                 operator.le,
-                'priority',
-                TypeCheckPreprocessor((int, float))
+                'priority'
             ),
             "utilization": EdgeFilter(
                 operator.le,
-                'utilization',
-                TypeCheckPreprocessor((int, float))
+                'utilization'
             ),
             "delay": EdgeFilter(
                 operator.le,
-                'delay',
-                TypeCheckPreprocessor((int, float))
+                'delay'
             ),
         }
         self.spf_edge_data_cbs = {
