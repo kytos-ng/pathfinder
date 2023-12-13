@@ -200,6 +200,10 @@ components:
           type: string
           description: The exact user who should have ownership or be authorized to use the link.
           example: "Bill"
+        not_ownership:
+          type: array
+          description: A list of users whose links we shouldn't use.
+          example: ["Alice", "Bob"]
           
     BadRequest:
       title: Bad Request
