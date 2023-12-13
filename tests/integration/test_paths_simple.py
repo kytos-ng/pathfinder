@@ -70,6 +70,49 @@ class TestPathsSimple(TestPaths):
             assert source == path[0]
             assert destination == path[-1]
 
+    def test_path_s1_s2_constrained_not_owner_red(self):
+        """Tests path from s1 to s3 constrained not_ownership red"""
+        self.initializer()
+
+        source = "S1"
+        destination = "S2"
+        results = self.graph.constrained_k_shortest_paths(
+            source, destination, mandatory_metrics={"not_ownership": ["red"]}
+        )
+        assert results
+
+        for result in results:
+            path = result["hops"]
+            assert source == path[0]
+            assert destination == path[-1]
+
+    def test_path_s1_s2_constrained_not_owner_blue(self):
+        """Tests path from s1 to s2 constrained not_ownership blue"""
+        self.initializer()
+
+        source = "S1"
+        destination = "S2"
+        results = self.graph.constrained_k_shortest_paths(
+            source, destination, mandatory_metrics={"not_ownership": ["blue"]}
+        )
+        assert results
+
+        for result in results:
+            path = result["hops"]
+            assert source == path[0]
+            assert destination == path[-1]
+
+    def test_path_s1_s2_constrained_not_owner_blue_red(self):
+        """Tests path from s1 to s2 constrained not_ownership blue, red"""
+        self.initializer()
+
+        source = "S1"
+        destination = "S2"
+        results = self.graph.constrained_k_shortest_paths(
+            source, destination, mandatory_metrics={"not_ownership": ["blue", "red"]}
+        )
+        assert not results
+
     def test_path_s1_s3_constrained_bandwidth(self):
         """Tests path from s1 to s3 constrained bandwdith, the best path
         is supposed to be via s2"""
