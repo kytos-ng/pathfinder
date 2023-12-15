@@ -37,6 +37,7 @@ class KytosGraph:
             TypeDifferentiatedProcessor({
                 str: lambda x: frozenset(x.split()),
                 dict: lambda x: frozenset(x.keys()),
+                list: lambda x: frozenset(x),
                 type(None): None
             })
         )
