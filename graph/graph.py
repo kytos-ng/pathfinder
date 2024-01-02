@@ -1,14 +1,15 @@
 """Module Graph of kytos/pathfinder Kytos Network Application."""
 
-# pylint: disable=too-many-arguments,too-many-locals
+# pylint: enable=too-many-arguments,too-many-locals
 from itertools import combinations, islice
+import operator
 
 from kytos.core import log
 from kytos.core.common import EntityStatus
-from napps.kytos.pathfinder.utils import (filter_ge, filter_in, filter_le,
-                                          lazy_filter, nx_edge_data_delay,
-                                          nx_edge_data_priority,
-                                          nx_edge_data_weight)
+ 
+from .filters import EdgeFilter, ProcessEdgeAttribute, TypeCheckPreprocessor, TypeDifferentiatedProcessor, UseDefaultIfNone, UseValIfNone
+from .weights import (nx_edge_data_delay, nx_edge_data_priority, nx_edge_data_weight)
+
 
 try:
     import networkx as nx
@@ -23,13 +24,56 @@ class KytosGraph:
 
     def __init__(self):
         self.graph = nx.Graph()
+        self._accepted_metadata = {
+            'ownership',
+            'bandwidth',
+            'reliability',
+            'priority',
+            'utilization',
+            'delay',
+        }
+        ownership_processor = ProcessEdgeAttribute(
+            'ownership',
+            TypeDifferentiatedProcessor({
+                str: lambda x: frozenset(x.split()),
+                dict: lambda x: frozenset(x.keys()),
+                list: lambda x: frozenset(x),
+                type(None): None
+            })
+        )
         self._filter_functions = {
-            "ownership": lazy_filter(str, filter_in("ownership")),
-            "bandwidth": lazy_filter((int, float), filter_ge("bandwidth")),
-            "reliability": lazy_filter((int, float), filter_ge("reliability")),
-            "priority": lazy_filter((int, float), filter_le("priority")),
-            "utilization": lazy_filter((int, float), filter_le("utilization")),
-            "delay": lazy_filter((int, float), filter_le("delay")),
+            "ownership": EdgeFilter(
+                operator.contains,
+                UseValIfNone(ownership_processor)
+            ),
+            "not_ownership": EdgeFilter(
+                lambda a, b: not (a & b),
+                UseDefaultIfNone(ownership_processor, frozenset()),
+                TypeDifferentiatedProcessor({
+                    str: lambda val: frozenset(val.split(',')),
+                    list: lambda val: frozenset(val)
+                })
+            ),
+            "bandwidth": EdgeFilter(
+                operator.ge,
+                'bandwidth'
+            ),
+            "reliability": EdgeFilter(
+                operator.ge,
+                'reliability'
+            ),
+            "priority": EdgeFilter(
+                operator.le,
+                'priority'
+            ),
+            "utilization": EdgeFilter(
+                operator.le,
+                'utilization'
+            ),
+            "delay": EdgeFilter(
+                operator.le,
+                'delay'
+            ),
         }
         self.spf_edge_data_cbs = {
             "hop": nx_edge_data_weight,
@@ -75,7 +119,7 @@ class KytosGraph:
     def update_link_metadata(self, link):
         """Update link metadata."""
         for key, value in link.metadata.items():
-            if key not in self._filter_functions:
+            if key not in self._accepted_metadata:
                 continue
             endpoint_a = link.endpoint_a.id
             endpoint_b = link.endpoint_b.id

@@ -136,7 +136,7 @@ class TestGraph(TestCase):
         )
         self.assertEqual(k_shortest_paths, ["any"])
 
-    @patch("napps.kytos.pathfinder.graph.combinations", autospec=True)
+    @patch("napps.kytos.pathfinder.graph.graph.combinations", autospec=True)
     def test_constrained_k_shortest_paths(self, mock_combinations):
         """Test shortest constrained paths."""
         source, dest = "00:00:00:00:00:00:00:01:1", "00:00:00:00:00:00:00:02:2"
