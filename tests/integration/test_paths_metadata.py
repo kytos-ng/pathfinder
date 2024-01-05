@@ -240,10 +240,10 @@ class TestPathsMetadata(MetadataSettings):
                     if meta_data and "reliability" in meta_data.keys():
                         reliabilities.append(meta_data["reliability"])
 
-            self.assertNotIn(poor_reliability, reliabilities)
+            assert poor_reliability not in reliabilities
 
         else:
-            self.assertNotEqual(paths, [])
+            assert paths
 
     def test_path_constrained_delay(self):
         """Tests if the edges used in the paths

@@ -1,4 +1,5 @@
 """Module to test the KytosGraph in graph.py."""
+import pytest
 from itertools import combinations
 
 # pylint: disable=import-error
@@ -8,35 +9,31 @@ from tests.integration.edges_settings import EdgesSettings
 class TestPathsEdges(EdgesSettings):
     """TestPathsEdges."""
 
-    def test_k_shortest_paths_among_users(self):
+    @pytest.mark.parametrize("source,destination",
+                             combinations(["User1", "User2", "User3", "User4"], 2))
+    def test_k_shortest_paths_among_users(self, source, destination):
         """Tests paths between all users using unconstrained path algorithm."""
-        combos = combinations(["User1", "User2", "User3", "User4"], 2)
         self.initializer()
+        paths = self.graph.k_shortest_paths(source, destination)
+        assert paths
+        for path in paths:
+            assert path[0] == source
+            assert path[-1] == destination
 
-        for source, destination in combos:
-            with self.subTest(source=source, destination=destination):
-                paths = self.graph.k_shortest_paths(source, destination)
-                assert paths
-                for path in paths:
-                    assert path[0] == source
-                    assert path[-1] == destination
-
-    def test_constrained_k_shortest_paths_among_users(self):
+    @pytest.mark.parametrize("source,destination",
+                             combinations(["User1", "User2", "User3", "User4"], 2))
+    def test_constrained_k_shortest_paths_among_users(self, source, destination):
         """Tests paths between all users using constrained path algorithm,
         with no constraints set.
         """
-        combos = combinations(["User1", "User2", "User3", "User4"], 2)
         self.initializer()
-
-        for source, destination in combos:
-            with self.subTest(source=source, destination=destination):
-                paths = self.graph.constrained_k_shortest_paths(
-                    source, destination
-                )
-                assert paths
-                for path in paths:
-                    assert path["hops"][0] == source
-                    assert path["hops"][-1] == destination
+        paths = self.graph.constrained_k_shortest_paths(
+            source, destination
+        )
+        assert paths
+        for path in paths:
+            assert path["hops"][0] == source
+            assert path["hops"][-1] == destination
 
     def test_cspf_delay_spf_attribute_between_u1_u4(self):
         """Test CSPF delay spf attribute between user1 and user4."""
@@ -190,63 +187,42 @@ class TestPathsEdges(EdgesSettings):
                 },
             )
             for path in paths:
+                hops_set = set(path["hops"])
+
                 # delay = 50 checks
                 if "delay" in path["metrics"]:
-                    self.assertNotIn("S1:1", path["hops"])
-                    self.assertNotIn("S2:1", path["hops"])
-                    self.assertNotIn("S3:1", path["hops"])
-                    self.assertNotIn("S5:1", path["hops"])
-                    self.assertNotIn("S4:2", path["hops"])
-                    self.assertNotIn("User1:2", path["hops"])
-                    self.assertNotIn("S5:5", path["hops"])
-                    self.assertNotIn("S8:2", path["hops"])
-                    self.assertNotIn("S5:6", path["hops"])
-                    self.assertNotIn("User1:3", path["hops"])
-                    self.assertNotIn("S6:3", path["hops"])
-                    self.assertNotIn("S9:1", path["hops"])
-                    self.assertNotIn("S6:4", path["hops"])
-                    self.assertNotIn("S9:2", path["hops"])
-                    self.assertNotIn("S6:5", path["hops"])
-                    self.assertNotIn("S10:1", path["hops"])
-                    self.assertNotIn("S8:5", path["hops"])
-                    self.assertNotIn("S9:4", path["hops"])
-                    self.assertNotIn("User1:4", path["hops"])
-                    self.assertNotIn("User4:3", path["hops"])
+                    nodes = set([
+                        "S1:1", "S2:1", "S3:1", "S5:1", "S4:2", "User1:2",
+                        "S5:5", "S8:2", "S5:6", "User1:3", "S6:3", "S9:1",
+                        "S6:4", "S9:2", "S6:5", "S10:1", "S8:5", "S9:4",
+                        "User1:4", "User4:3"
+                    ])
+                    assert not nodes & hops_set
 
                 # bandwidth = 100 checks
                 if "bandwidth" in path["metrics"]:
-                    self.assertNotIn("S3:1", path["hops"])
-                    self.assertNotIn("S5:1", path["hops"])
-                    self.assertNotIn("User1:4", path["hops"])
-                    self.assertNotIn("User4:3", path["hops"])
+                    nodes = set(["S3:1", "S5:1", "User1:4", "User4:3"])
+                    assert not nodes & hops_set
 
                 # reliability = 3 checks
                 if "reliability" in path["metrics"]:
-                    self.assertNotIn("S4:1", path["hops"])
-                    self.assertNotIn("S5:2", path["hops"])
-                    self.assertNotIn("S5:3", path["hops"])
-                    self.assertNotIn("S6:1", path["hops"])
+                    nodes = set(["S4:1", "S5:2", "S5:3", "S6:1"])
+                    assert not nodes & hops_set
 
                 # ownership = "B" checks
-                self.assertIn("ownership", path["metrics"])
-                self.assertNotIn("S4:1", path["hops"])
-                self.assertNotIn("S5:2", path["hops"])
-                self.assertNotIn("S4:2", path["hops"])
-                self.assertNotIn("User1:2", path["hops"])
-                self.assertNotIn("S5:4", path["hops"])
-                self.assertNotIn("S6:2", path["hops"])
-                self.assertNotIn("S6:5", path["hops"])
-                self.assertNotIn("S10:1", path["hops"])
-                self.assertNotIn("S8:6", path["hops"])
-                self.assertNotIn("S10:2", path["hops"])
-                self.assertNotIn("S10:3", path["hops"])
-                self.assertNotIn("User2:1", path["hops"])
+                assert "ownership" in path["metrics"]
+                nodes = set([
+                    "S4:1", "S5:2", "User1:2", "S5:4",
+                    "S6:2", "S6:5", "S10:1", "S8:6", "S10:2",
+                    "S10:3", "User2:1"
+                ])
+                assert not nodes & hops_set
 
     def test_ownership_type_error(self):
         """Tests that TypeError."""
         self.initializer()
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             self.graph.constrained_k_shortest_paths(
                 "User1", "User2", mandatory_metrics={"ownership": 1}
             )

@@ -1,15 +1,15 @@
 """Test filter methods"""
 # pylint: disable=protected-access
-from unittest import TestCase
+import pytest
 
 from napps.kytos.pathfinder.utils import lazy_filter
 from napps.kytos.pathfinder.graph import KytosGraph
 
 
-class TestLazyFilter(TestCase):
+class TestLazyFilter:
     """Tests for the Main class."""
 
-    def setUp(self):
+    def setup_method(self):
         """Execute steps before each test."""
         self.graph = KytosGraph()
 
@@ -17,7 +17,7 @@ class TestLazyFilter(TestCase):
         """Test filtering with invalid minimum type."""
         items = [8, 9, 10, 11, 12]
         minimum = "wrong_type"
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             filtered = lazy_filter(int, lambda x: (lambda y: y >= x))
             list(filtered(minimum, items))
 
