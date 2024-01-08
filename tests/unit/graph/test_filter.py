@@ -1,6 +1,6 @@
 """Test filter methods"""
 # pylint: disable=protected-access
-from unittest import TestCase
+import pytest
 from unittest.mock import MagicMock
 
 from napps.kytos.pathfinder.graph.filters import (TypeCheckPreprocessor,
@@ -8,10 +8,10 @@ from napps.kytos.pathfinder.graph.filters import (TypeCheckPreprocessor,
 from napps.kytos.pathfinder.graph import KytosGraph
 
 
-class TestLazyFilter(TestCase):
+class TestLazyFilter:
     """Tests for the Main class."""
 
-    def setUp(self):
+    def setup_method(self):
         """Execute steps before each test."""
         self.graph = KytosGraph()
 
@@ -20,7 +20,7 @@ class TestLazyFilter(TestCase):
         wrong_type = "wrong_type"
         right_type = 3
         preprocessor = TypeCheckPreprocessor(int)
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             preprocessor(wrong_type)
         preprocessor(right_type)
 
@@ -32,7 +32,7 @@ class TestLazyFilter(TestCase):
         preprocessor = TypeDifferentiatedProcessor({
                 int: fake_inner
         })
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             preprocessor(wrong_type)
         fake_inner.assert_not_called()
         preprocessor(right_type)

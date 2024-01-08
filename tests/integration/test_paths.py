@@ -1,5 +1,4 @@
 """Module to test the KytosGraph in graph.py"""
-from unittest import TestCase
 
 from kytos.core.interface import Interface
 from kytos.core.link import Link
@@ -8,7 +7,7 @@ from kytos.core.switch import Switch
 from napps.kytos.pathfinder.graph import KytosGraph
 
 
-class TestPaths(TestCase):
+class TestPaths:
     """Tests for the graph class."""
 
     def initializer(self, val=0):

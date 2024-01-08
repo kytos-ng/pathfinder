@@ -1,5 +1,6 @@
 """Test Graph methods."""
-from unittest import TestCase
+import pytest
+
 from unittest.mock import MagicMock, call, patch
 
 from kytos.core.common import EntityStatus
@@ -15,14 +16,14 @@ from tests.helpers import (
 # pylint: disable=arguments-differ, protected-access, no-member
 
 
-class TestGraph(TestCase):
+class TestGraph:
     """Tests for the Main class."""
 
-    @patch("networkx.Graph")
-    def setUp(self, mock_graph):
+    def setup_method(self):
         """Execute steps before each tests."""
-        self.mock_graph = mock_graph.return_value
+        self.mock_graph = MagicMock()
         self.kytos_graph = KytosGraph()
+        self.kytos_graph.graph = self.mock_graph
 
     def test_clear(self):
         """Test clear."""
@@ -102,11 +103,9 @@ class TestGraph(TestCase):
         effect = MagicMock(side_effect=AttributeError)
 
         topology = get_topology_mock()
-        with self.assertRaises(Exception):
+        with pytest.raises(TypeError):
             with patch.object(self.mock_graph, "add_node", effect):
                 self.kytos_graph.update_nodes(topology.switches)
-
-        self.assertRaises(AttributeError)
 
     def test_remove_switch_hops(self):
         """Test remove switch hops."""
@@ -123,7 +122,7 @@ class TestGraph(TestCase):
         expected_circuit = {
             "hops": ["00:00:00:00:00:00:00:01:1", "00:00:00:00:00:00:00:01:2"]
         }
-        self.assertEqual(circuit, expected_circuit)
+        assert circuit == expected_circuit
 
     @patch("networkx.shortest_simple_paths", return_value=["any"])
     def test_shortest_paths(self, mock_shortest_simple_paths):
@@ -134,7 +133,7 @@ class TestGraph(TestCase):
         mock_shortest_simple_paths.assert_called_with(
             self.kytos_graph.graph, source, dest, weight=None
         )
-        self.assertEqual(k_shortest_paths, ["any"])
+        assert k_shortest_paths == ["any"]
 
     @patch("napps.kytos.pathfinder.graph.graph.combinations", autospec=True)
     def test_constrained_k_shortest_paths(self, mock_combinations):
