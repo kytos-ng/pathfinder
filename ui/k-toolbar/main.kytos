@@ -208,7 +208,7 @@ module.exports = {
           title: 'Bad request',
           description: data.status + ': ' + data.responseJSON.description
         };
-        self.$kytos.$emit("setNotification", notification);
+        self.$kytos.eventBus.$emit("setNotification", notification);
       });
     },
     get_topology(){
@@ -233,7 +233,7 @@ module.exports = {
                       "title": "Best Paths",
                       "subtitle": "by kytos/pathfinder"
                      }
-       this.$kytos.$emit("showInfoPanel", content)
+       this.$kytos.eventBus.$emit("showInfoPanel", content)
 
    }
   },
