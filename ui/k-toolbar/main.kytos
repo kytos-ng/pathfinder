@@ -131,7 +131,7 @@
           </div>
 
            <div>
-             <k-button icon="search" title="Search" :on_click="get_paths">
+             <k-button icon="search" title="Search" @click="get_paths">
              </k-button>
            </div>
 
