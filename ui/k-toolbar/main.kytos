@@ -4,86 +4,86 @@
       <k-accordion>
         <k-accordion-item title="Best Paths">
 
-          <k-input-auto id="source" :value.sync="source"
+          <k-input-auto id="source" v-model:value="source"
                     title="Source:"
                     placeholder="Source" icon="arrow-right"
                     :candidates="interfaces" 
                     @focus="get_interfaces"
                     @blur="onblur_interfaces"
                     >{{ source }}</k-input-auto>
-          <k-input class="k-input interface-label" :value.sync="source_name" icon="none"
+          <k-input class="k-input interface-label" v-model:value="source_name" icon="none"
                     >{{ source_name }}</k-input> 
 
-          <k-input-auto id="destination" :value.sync="destination"
+          <k-input-auto id="destination" v-model:value="destination"
                     title="Destination:"
                     placeholder="Destination" icon="arrow-right"
                     :candidates="interfaces" 
                     @focus="get_interfaces"
                     @blur="onblur_interfaces"
                     >{{ destination }}</k-input-auto>
-          <k-input class="k-input interface-label" :value.sync="destination_name" icon="none"
+          <k-input class="k-input interface-label" v-model:value="destination_name" icon="none"
                     >{{ destination_name }}</k-input> 
 
 
          <k-select icon="link" title="Undesired links:" :options="get_links"
-          :value.sync ="undesired_links"></k-select>
+          v-model:value ="undesired_links"></k-select>
           <div class="metric">
             <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'bandwidth'"></k-checkbox>
+              <k-checkbox v-model:model = "checked_list" :value = "'bandwidth'"></k-checkbox>
             </div>
             <div class="dropdown">
               <k-dropdown :options="metric_options['bandwidth']" 
-               :value.sync="is_flexible.bandwidth"></k-dropdown>
+               v-model:value="is_flexible.bandwidth"></k-dropdown>
             </div>
             <k-input icon="arrow-right" :action="function(val) {metrics.bandwidth = parseInt(val)}"></k-input>
           </div>
           <div class="metric">
             <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'reliability'"></k-checkbox>
+              <k-checkbox v-model:model = "checked_list" :value = "'reliability'"></k-checkbox>
             </div>
             <div class="dropdown">
               <k-dropdown :options="metric_options['reliability']" 
-              :value.sync="is_flexible.reliability"></k-dropdown>
+              v-model:value="is_flexible.reliability"></k-dropdown>
             </div>
             <k-input icon="arrow-right" :action="function(val) {metrics.reliability = parseInt(val)}"></k-input>
           </div>
           <div class="metric">
             <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'delay'"></k-checkbox>
+              <k-checkbox v-model:model = "checked_list" :value = "'delay'"></k-checkbox>
             </div>
             <div class="dropdown">
               <k-dropdown :options="metric_options['delay']" 
-              :value.sync="is_flexible.delay"></k-dropdown>
+              v-model:value="is_flexible.delay"></k-dropdown>
             </div>
             <k-input icon="arrow-right" :action="function(val) {metrics.delay = parseInt(val)}"></k-input>
           </div>
           <div class="metric">
             <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'utilization'"></k-checkbox>
+              <k-checkbox v-model:model = "checked_list" :value = "'utilization'"></k-checkbox>
             </div>
             <div class="dropdown">
               <k-dropdown :options="metric_options['utilization']" 
-              :value.sync="is_flexible.utilization"></k-dropdown>
+              v-model:value="is_flexible.utilization"></k-dropdown>
             </div>
             <k-input icon="arrow-right" :action="function(val) {metrics.utilization = parseInt(val)}"></k-input>
           </div>
           <div class="metric">
             <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'priority'"></k-checkbox>
+              <k-checkbox v-model:model = "checked_list" :value = "'priority'"></k-checkbox>
             </div>
             <div class="dropdown">
               <k-dropdown :options="metric_options['priority']" 
-              :value.sync="is_flexible.priority"></k-dropdown>
+              v-model:value="is_flexible.priority"></k-dropdown>
             </div>
             <k-input icon="arrow-right" :action="function(val) {metrics.priority = parseInt(val)}"></k-input>
           </div>
           <div class="metric">
             <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'ownership'"></k-checkbox>
+              <k-checkbox v-model:model = "checked_list" :value = "'ownership'"></k-checkbox>
             </div>
             <div class="dropdown">
               <k-dropdown :options="metric_options['ownership']" 
-              :value.sync="is_flexible.ownership"></k-dropdown>
+              v-model:value="is_flexible.ownership"></k-dropdown>
             </div>
             <k-input icon="arrow-right" :value.sync="metrics.ownership"></k-input>
           </div>
@@ -112,7 +112,7 @@
           <div class="metric">
             <div class="dropdown">
               <k-dropdown title="SPF Attribute" :options="get_spf_attribute_options" 
-              :value.sync="spf_attribute"></k-dropdown>
+              v-model:value="spf_attribute"></k-dropdown>
             </div>
           </div>
 
