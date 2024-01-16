@@ -1,8 +1,10 @@
 """Test filter methods"""
 # pylint: disable=protected-access
 from unittest import TestCase
+from unittest.mock import MagicMock
 
-from napps.kytos.pathfinder.utils import lazy_filter
+from napps.kytos.pathfinder.graph.filters import (TypeCheckPreprocessor,
+                                                  TypeDifferentiatedProcessor)
 from napps.kytos.pathfinder.graph import KytosGraph
 
 
@@ -15,11 +17,26 @@ class TestLazyFilter(TestCase):
 
     def test_type_error(self):
         """Test filtering with invalid minimum type."""
-        items = [8, 9, 10, 11, 12]
-        minimum = "wrong_type"
+        wrong_type = "wrong_type"
+        right_type = 3
+        preprocessor = TypeCheckPreprocessor(int)
         with self.assertRaises(TypeError):
-            filtered = lazy_filter(int, lambda x: (lambda y: y >= x))
-            list(filtered(minimum, items))
+            preprocessor(wrong_type)
+        preprocessor(right_type)
+
+    def test_type_error2(self):
+        """Test filtering with invalid minimum type."""
+        wrong_type = "wrong_type"
+        right_type = 3
+        fake_inner = MagicMock()
+        preprocessor = TypeDifferentiatedProcessor({
+                int: fake_inner
+        })
+        with self.assertRaises(TypeError):
+            preprocessor(wrong_type)
+        fake_inner.assert_not_called()
+        preprocessor(right_type)
+        fake_inner.assert_called_once()
 
     def test_filter_functions_in(self):
         """Test _filter_function that are expected to use the filter_in""" ""
