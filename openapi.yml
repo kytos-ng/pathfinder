@@ -202,6 +202,8 @@ components:
           example: "Bill"
         not_ownership:
           type: array
+          items:
+            type: string
           description: A list of users whose links we shouldn't use.
           example: ["Alice", "Bob"]
           
