@@ -17,7 +17,6 @@ class TestPaths:
             "generate_topology" if not val else "generate_topology_" + str(val)
         )
         method = getattr(self, method_name)
-        method()
         switches, links = method()
 
         self.graph = KytosGraph()
@@ -37,6 +36,7 @@ class TestPaths:
         """Add a new switch to the list of switches"""
         switch = Switch(name)
         switch.is_active = lambda: True
+        switch.is_enabled = lambda: True
         switches[name] = switch
 
     @staticmethod

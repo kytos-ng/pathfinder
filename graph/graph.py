@@ -15,7 +15,7 @@ try:
     import networkx as nx
     from networkx.exception import NetworkXNoPath, NodeNotFound
 except ImportError:
-    PACKAGE = "networkx==2.5.1"
+    PACKAGE = "networkx==2.8.6"
     log.error(f"Package {PACKAGE} not found. Please 'pip install {PACKAGE}'")
 
 
