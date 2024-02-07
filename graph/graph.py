@@ -11,12 +11,8 @@ from .filters import EdgeFilter, ProcessEdgeAttribute, TypeCheckPreprocessor, Ty
 from .weights import (nx_edge_data_delay, nx_edge_data_priority, nx_edge_data_weight)
 
 
-try:
-    import networkx as nx
-    from networkx.exception import NetworkXNoPath, NodeNotFound
-except ImportError:
-    PACKAGE = "networkx==2.8.6"
-    log.error(f"Package {PACKAGE} not found. Please 'pip install {PACKAGE}'")
+import networkx as nx
+from networkx.exception import NetworkXNoPath, NodeNotFound
 
 
 class KytosGraph:
