@@ -95,8 +95,11 @@
               <k-dropdown :options="metric_options['not_ownership']" 
               :value.sync="is_flexible.not_ownership"></k-dropdown>
             </div>
-            <k-input icon="arrow-right" placeholder="['blue', 'red']"
-                      :action="function(val) {try{metrics.not_ownership = JSON.parse(val)}catch(e){if(!(e instanceof SyntaxError)){throw e}}}">
+            <k-input icon="arrow-right" placeholder='["blue", "red"]' tooltip="Use double quotes for owners."
+                      :action="function(val){
+                        try{metrics.not_ownership = JSON.parse(val)}
+                        catch(e){if(e instanceof SyntaxError){metrics.not_ownership=val}else{throw e}}
+                      }">
             </k-input>
           </div>
           <div class="metric">
@@ -372,7 +375,7 @@ module.exports = {
         utilization: 0,
         priority: 0,
         ownership: "",
-        not_ownership: "",
+        not_ownership: [],
       },
       is_flexible:{
         bandwidth: false,
