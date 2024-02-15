@@ -6,6 +6,9 @@ All notable changes to the pathfinder NApp will be documented in this file.
 [UNRELEASED] - Under development
 ********************************
 
+[2023.2.0] - 2024-02-16
+***********************
+
 Added
 =====
 - Added UI autocomplete for source and destination
