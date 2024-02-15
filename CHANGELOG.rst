@@ -9,7 +9,8 @@ All notable changes to the pathfinder NApp will be documented in this file.
 Added
 =====
 - Added UI autocomplete for source and destination
-- Added ``not_ownership`` as a filter for pathfinding. Pass a list of strings of owners to filter out edges with any of the given owners. 
+- Added ``not_ownership`` as a filter for pathfinding. Pass a list of strings of owners to filter out edges with any of the given owners.
+- Added ``not_ownership`` filter to main UI interface.
 
 Changed
 =======

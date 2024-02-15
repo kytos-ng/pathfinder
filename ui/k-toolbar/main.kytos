@@ -85,9 +85,23 @@
               <k-dropdown :options="metric_options['ownership']" 
               :value.sync="is_flexible.ownership"></k-dropdown>
             </div>
+            <k-input icon="arrow-right" :value.sync="metrics.ownership"></k-input>
           </div>
-          <k-input icon="arrow-right" :value.sync="metrics.ownership"></k-input>
-
+          <div class="metric">
+            <div class="checkbox">
+              <k-checkbox :model.sync = "checked_list" :value = "'not_ownership'"></k-checkbox>
+            </div>
+            <div class="dropdown">
+              <k-dropdown :options="metric_options['not_ownership']" 
+              :value.sync="is_flexible.not_ownership"></k-dropdown>
+            </div>
+            <k-input icon="arrow-right" placeholder='["blue", "red"]' tooltip="Use double quotes for owners."
+                      :action="function(val){
+                        try{metrics.not_ownership = JSON.parse(val)}
+                        catch(e){if(e instanceof SyntaxError){metrics.not_ownership=val}else{throw e}}
+                      }">
+            </k-input>
+          </div>
           <div class="metric">
             <div>
               <k-input icon="arrow-right" placeholder="Minimum flexible hits"
@@ -235,6 +249,7 @@ module.exports = {
       var priority_options = []
       var ownership_options = []
       var spf_attribute_options = []
+      var not_ownership_options = []
 
       bandwidth_options.push({value: false, description: 'Bandwidth', selected: true});
       bandwidth_options.push({value: true, description: 'Bandwidth (Flexible)'});
@@ -254,12 +269,16 @@ module.exports = {
       ownership_options.push({value: false, description: 'Ownership', selected: true});
       ownership_options.push({value: true, description: 'Ownership (Flexible)'});
 
+      not_ownership_options.push({value: false, description: 'Not ownership', selected: true});
+      not_ownership_options.push({value: true, description: 'Not ownership (Flexible)'});
+
       metric_options["bandwidth"] = bandwidth_options
       metric_options["reliability"] = reliability_options
       metric_options["delay"] = delay_options
       metric_options["utilization"] = utilization_options
       metric_options["priority"] = priority_options
       metric_options["ownership"] = ownership_options
+      metric_options["not_ownership"] = not_ownership_options
 
       return metric_options;
     },
@@ -355,7 +374,8 @@ module.exports = {
         delay: 0,
         utilization: 0,
         priority: 0,
-        ownership: ""
+        ownership: "",
+        not_ownership: [],
       },
       is_flexible:{
         bandwidth: false,
@@ -363,7 +383,8 @@ module.exports = {
         delay: false,
         utilization: false,
         priority: false,
-        ownership: false
+        ownership: false,
+        not_ownership: false,
       },
       spf_attribute: "hop",
       spf_max_paths: 2,
