@@ -1,5 +1,5 @@
 """Test Main methods."""
-
+import asyncio
 from unittest.mock import MagicMock, patch
 
 from kytos.core.events import KytosEvent
@@ -44,9 +44,9 @@ class TestMain:
         mock_shortest_paths.return_value = [path]
         return path
 
-    async def test_shortest_path_response(self, monkeypatch, event_loop):
+    async def test_shortest_path_response(self, monkeypatch):
         """Test shortest path."""
-        self.napp.controller.loop = event_loop
+        self.napp.controller.loop = asyncio.get_running_loop()
         cost_mocked_value = 1
         mock_path_cost = MagicMock(return_value=cost_mocked_value)
         monkeypatch.setattr("napps.kytos.pathfinder.graph."
@@ -67,10 +67,10 @@ class TestMain:
         assert response.json() == expected_response
 
     async def test_shortest_path_response_status_code(
-        self, monkeypatch, event_loop
+        self, monkeypatch
     ):
         """Test shortest path."""
-        self.napp.controller.loop = event_loop
+        self.napp.controller.loop = asyncio.get_running_loop()
         cost_mocked_value = 1
         mock_path_cost = MagicMock(return_value=cost_mocked_value)
         monkeypatch.setattr("napps.kytos.pathfinder.graph."
@@ -112,10 +112,10 @@ class TestMain:
         return response, metrics, path
 
     async def test_shortest_constrained_path_response(
-        self, monkeypatch, event_loop
+        self, monkeypatch
     ):
         """Test constrained flexible paths."""
-        self.napp.controller.loop = event_loop
+        self.napp.controller.loop = asyncio.get_running_loop()
         mock_path_cost = MagicMock(return_value=1)
         monkeypatch.setattr("napps.kytos.pathfinder.graph."
                             "KytosGraph._path_cost", mock_path_cost)
@@ -133,10 +133,10 @@ class TestMain:
         assert response.json()["paths"][0] == expected_response[0]
 
     async def test_shortest_constrained_path_response_status_code(
-        self, monkeypatch, event_loop
+        self, monkeypatch
     ):
         """Test constrained flexible paths."""
-        self.napp.controller.loop = event_loop
+        self.napp.controller.loop = asyncio.get_running_loop()
         mock_path_cost = MagicMock(return_value=1)
         monkeypatch.setattr("napps.kytos.pathfinder.graph."
                             "KytosGraph._path_cost", mock_path_cost)
@@ -233,9 +233,9 @@ class TestMain:
         )
         self.napp.update_topology(event)
 
-    async def test_shortest_path(self, event_loop):
+    async def test_shortest_path(self):
         """Test shortest path."""
-        self.napp.controller.loop = event_loop
+        self.napp.controller.loop = asyncio.get_running_loop()
         self.setting_path()
         source, destination = "User1", "User4"
         data = {"source": source, "destination": destination}
@@ -264,8 +264,8 @@ class TestMain:
             response = await self.api_client.post(self.endpoint, json=data)
         return response
 
-    async def test_shortest_constrained_path_400_exception(self, event_loop):
+    async def test_shortest_constrained_path_400_exception(self):
         """Test shortest path."""
-        self.napp.controller.loop = event_loop
+        self.napp.controller.loop = asyncio.get_running_loop()
         res = await self.setting_shortest_constrained_path_exception(TypeError)
         assert res.status_code == 400
