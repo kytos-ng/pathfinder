@@ -85,15 +85,15 @@
               <k-dropdown :options="metric_options['ownership']" 
               v-model:value="is_flexible.ownership"></k-dropdown>
             </div>
-            <k-input icon="arrow-right" :value.sync="metrics.ownership"></k-input>
+            <k-input icon="arrow-right" v-model:value="metrics.ownership" ></k-input>
           </div>
           <div class="metric">
             <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'not_ownership'"></k-checkbox>
+              <k-checkbox v-model:value="checked_list" :value = "'not_ownership'"></k-checkbox>
             </div>
             <div class="dropdown">
               <k-dropdown :options="metric_options['not_ownership']" 
-              :value.sync="is_flexible.not_ownership"></k-dropdown>
+              v-model:value="is_flexible.not_ownership"></k-dropdown>
             </div>
             <k-input icon="arrow-right" placeholder='["blue", "red"]' tooltip="Use double quotes for owners."
                       :action="function(val){
