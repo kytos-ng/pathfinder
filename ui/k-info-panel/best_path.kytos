@@ -1,15 +1,17 @@
 <template>
     <k-accordion>
       <k-accordion-item title="Best Paths">
-            <k-property-panel v-for="(path, index) in content">
+        <template v-if="content">
+            <k-property-panel v-for="(path, index) in content.paths">
               <k-accordion-item :title=format_title(index,path['cost'])>
                 <k-property-panel-item v-for="(current_path, path_index) in path['hops']"
-                                       v-if="content" :name="String(path_index)" :value="format_hop(current_path)"
+                                       :name="String(path_index)" :value="format_hop(current_path)"
                                        :key="path_index">
                 </k-property-panel-item>
               </k-accordion-item>
             </k-property-panel>
-        </k-accordion-item>
+        </template>
+      </k-accordion-item>
     </k-accordion>
 </template>
 
@@ -37,7 +39,7 @@
       }
      },
      get_switch_data(base_path) {
-      return self.switches.filter(object => object.id === base_path)[0]
+      return this.content.switches[base_path]
      },
    },
    data () {
