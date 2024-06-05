@@ -228,7 +228,7 @@ module.exports = {
     show() {
        var content = {
                       "component": 'kytos-pathfinder-k-info-panel-best_path',
-                      "content": this.paths,
+                      "content": {'paths': this.paths, 'switches': this.switches},
                       "icon": "compass",
                       "title": "Best Paths",
                       "subtitle": "by kytos/pathfinder"
