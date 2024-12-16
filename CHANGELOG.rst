@@ -6,6 +6,14 @@ All notable changes to the pathfinder NApp will be documented in this file.
 [UNRELEASED] - Under development
 ********************************
 
+Fixed
+=====
+- Added missing quotes to v-binds
+
+Added
+=====
+- Inputs used for display only were disabled
+
 [2024.1.0] - 2024-07-23
 ***********************
 
