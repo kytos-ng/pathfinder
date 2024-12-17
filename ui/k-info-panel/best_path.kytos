@@ -4,7 +4,7 @@
       <k-accordion-item title="Best Paths">
           <template v-if="content">
             <k-property-panel v-for="(path, index) in content.paths">
-              <k-accordion-item :title=format_title(index,path['cost'])>
+              <k-accordion-item :title="format_title(index,path['cost'])">
                   <k-property-panel-item v-for="(current_path, path_index) in path['hops']"
                                         :name="String(path_index)" :value="format_hop(current_path)"
                                         :key="path_index">
