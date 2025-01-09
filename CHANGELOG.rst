@@ -8,6 +8,7 @@ All notable changes to the pathfinder NApp will be documented in this file.
 
 Fixed
 =====
+- Placed try and catch block into a Vue JS method
 - Added missing quotes to v-binds
 
 Added
