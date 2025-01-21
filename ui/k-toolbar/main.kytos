@@ -98,10 +98,7 @@
               v-model:value="is_flexible.not_ownership"></k-dropdown>
             </div>
             <k-input icon="arrow-right" placeholder='["blue", "red"]' tooltip="Use double quotes for owners."
-                      :action="function(val){
-                        try{metrics.not_ownership = JSON.parse(val)}
-                        catch(e){if(e instanceof SyntaxError){metrics.not_ownership=val}else{throw e}}
-                      }">
+                      :action="notOwnershipInput(val)">
             </k-input>
           </div>
           <div class="metric">
@@ -146,6 +143,21 @@
 <script>
 module.exports = {
   methods: {
+    notOwnershipInput: function (val){
+      try {
+        this.metrics.not_ownership = JSON.parse(val)
+      }
+      catch (e) {
+        if (e instanceof SyntaxError)
+        {
+          this.metrics.not_ownership=val
+        }
+        else
+        {
+          throw e
+        }
+      }
+    },
     get_paths (){
       var self = this
       var mandatory_metrics = {}
