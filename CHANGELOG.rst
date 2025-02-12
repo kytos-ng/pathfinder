@@ -8,12 +8,24 @@ All notable changes to the pathfinder NApp will be documented in this file.
 
 Fixed
 =====
+- Placed try and catch block into a Vue JS method
+- Added missing quotes to v-binds
 - Fixed RuntimeError: dictionary changed size, when updating the graph
+
+Added
+=====
+- Inputs used for display only were disabled
+
+Changed
+=======
+- k-inputs now use customClass prop to add CSS classes
+
+[2024.1.0] - 2024-07-23
+***********************
 
 Changed
 =======
 - Updated python environment installation from 3.9 to 3.11
-- Updated test dependencies
 - Upgraded UI framework to Vue3
 
 [2023.2.0] - 2024-02-16

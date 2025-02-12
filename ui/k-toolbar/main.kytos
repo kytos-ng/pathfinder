@@ -11,7 +11,8 @@
                     @focus="get_interfaces"
                     @blur="onblur_interfaces"
                     >{{ source }}</k-input-auto>
-          <k-input class="k-input interface-label" v-model:value="source_name" icon="none"
+
+          <k-input :isDisabled="true" customClass="k-input interface-label" v-model:value="source_name" icon="none"
                     >{{ source_name }}</k-input> 
 
           <k-input-auto id="destination" v-model:value="destination"
@@ -21,7 +22,8 @@
                     @focus="get_interfaces"
                     @blur="onblur_interfaces"
                     >{{ destination }}</k-input-auto>
-          <k-input class="k-input interface-label" v-model:value="destination_name" icon="none"
+
+          <k-input :isDisabled="true" customClass="k-input interface-label" v-model:value="destination_name" icon="none"
                     >{{ destination_name }}</k-input> 
 
 
@@ -96,10 +98,7 @@
               v-model:value="is_flexible.not_ownership"></k-dropdown>
             </div>
             <k-input icon="arrow-right" placeholder='["blue", "red"]' tooltip="Use double quotes for owners."
-                      :action="function(val){
-                        try{metrics.not_ownership = JSON.parse(val)}
-                        catch(e){if(e instanceof SyntaxError){metrics.not_ownership=val}else{throw e}}
-                      }">
+                      :action="notOwnershipInput(val)">
             </k-input>
           </div>
           <div class="metric">
@@ -144,6 +143,21 @@
 <script>
 module.exports = {
   methods: {
+    notOwnershipInput: function (val){
+      try {
+        this.metrics.not_ownership = JSON.parse(val)
+      }
+      catch (e) {
+        if (e instanceof SyntaxError)
+        {
+          this.metrics.not_ownership=val
+        }
+        else
+        {
+          throw e
+        }
+      }
+    },
     get_paths (){
       var self = this
       var mandatory_metrics = {}
