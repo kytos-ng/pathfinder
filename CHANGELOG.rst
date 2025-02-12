@@ -6,6 +6,10 @@ All notable changes to the pathfinder NApp will be documented in this file.
 [UNRELEASED] - Under development
 ********************************
 
+Fixed
+=====
+- Fixed RuntimeError: dictionary changed size, when updating the graph
+
 Changed
 =======
 - Updated python environment installation from 3.9 to 3.11
