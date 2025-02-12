@@ -10,6 +10,7 @@ Fixed
 =====
 - Placed try and catch block into a Vue JS method
 - Added missing quotes to v-binds
+- Fixed RuntimeError: dictionary changed size, when updating the graph
 
 Added
 =====

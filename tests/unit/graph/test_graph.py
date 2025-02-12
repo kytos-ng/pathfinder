@@ -199,7 +199,7 @@ class TestGraph:
         endpoint_b_id = 2
         link.endpoint_a.id = endpoint_a_id
         link.endpoint_b.id = endpoint_b_id
-        link.metadata.items.return_value = [("reliability", 50)]
+        link.metadata = {"reliability": 50}
         self.kytos_graph.graph = graph
         self.kytos_graph.update_link_metadata(link)
         call_res = str(self.kytos_graph.graph._mock_mock_calls)
