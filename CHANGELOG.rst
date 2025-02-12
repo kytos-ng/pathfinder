@@ -6,6 +6,13 @@ All notable changes to the pathfinder NApp will be documented in this file.
 [UNRELEASED] - Under development
 ********************************
 
+[2023.2.1] - 2025-02-12
+***********************
+
+Fixed
+=====
+- Fixed RuntimeError: dictionary changed size, when updating the graph
+
 [2023.2.0] - 2024-02-16
 ***********************
 
