@@ -84,8 +84,8 @@ class KytosGraph:
     def update_topology(self, topology):
         """Update all nodes and links inside the graph."""
         self.graph.clear()
-        self.update_nodes(topology.switches)
-        self.update_links(topology.links)
+        self.update_nodes(topology.switches.copy())
+        self.update_links(topology.links.copy())
 
     def update_nodes(self, nodes):
         """Update all nodes inside the graph."""
@@ -95,7 +95,7 @@ class KytosGraph:
                     continue
                 self.graph.add_node(node.id)
 
-                for interface in node.interfaces.values():
+                for interface in node.interfaces.copy().values():
                     if interface.status == EntityStatus.UP:
                         self.graph.add_node(interface.id)
                         self.graph.add_edge(node.id, interface.id)
@@ -114,7 +114,7 @@ class KytosGraph:
 
     def update_link_metadata(self, link):
         """Update link metadata."""
-        for key, value in link.metadata.items():
+        for key, value in link.metadata.copy().items():
             if key not in self._accepted_metadata:
                 continue
             endpoint_a = link.endpoint_a.id
