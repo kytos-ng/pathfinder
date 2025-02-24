@@ -16,11 +16,6 @@ Added
 =====
 - Inputs used for display only were disabled
 
-Changed
-=======
-- k-inputs now use customClass prop to add CSS classes
-- removed customClass
-
 [2024.1.0] - 2024-07-23
 ***********************
 
