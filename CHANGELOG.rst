@@ -6,6 +6,9 @@ All notable changes to the pathfinder NApp will be documented in this file.
 [UNRELEASED] - Under development
 ********************************
 
+[2025.1.0] - 2025-04-14
+***********************
+
 Fixed
 =====
 - Placed try and catch block into a Vue JS method
