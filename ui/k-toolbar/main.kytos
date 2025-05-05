@@ -1,5 +1,5 @@
 <template>
-  <k-toolbar-item icon="compass" tooltip="Napp Pathfinder">
+  <k-toolbar-item name="kytos-pathfinder-k-toolbar-main" icon="compass" tooltip="Napp Pathfinder">
     <div class="scroll">
       <k-accordion>
         <k-accordion-item title="Best Paths">
