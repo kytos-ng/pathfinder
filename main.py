@@ -100,6 +100,7 @@ class Main(KytosNApp):
 
         try:
             with self._lock:
+                self._get_latest_topology()
                 graph = self.graph.graph
                 if undesired:
                     non_excluded_edges = self._non_excluded_edges(undesired)
@@ -157,3 +158,15 @@ class Main(KytosNApp):
         switches = list(topology.switches.keys())
         links = list(topology.links.keys())
         log.debug(f"Topology graph updated with switches: {switches}, links: {links}.")
+
+    def _get_latest_topology(self):
+        """Get the latest topology from the topology napp."""
+        try:
+            topology_napp = self.controller.napps[("kytos", "topology")]
+        except KeyError:
+            log.debug("Failed to get topology napp for forcing topology update.")
+            return
+        topology = topology_napp.get_latest_topology()
+
+        self._topology = topology
+        self.graph.update_topology(topology)
