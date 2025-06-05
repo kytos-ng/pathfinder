@@ -153,11 +153,7 @@ class Main(KytosNApp):
             return
         topology = event.content["topology"]
         with self._lock:
-            self._topology = topology
-            self.graph.update_topology(topology)
-        switches = list(topology.switches.keys())
-        links = list(topology.links.keys())
-        log.debug(f"Topology graph updated with switches: {switches}, links: {links}.")
+            self._update_to_topology(topology)
 
     def _get_latest_topology(self):
         """Get the latest topology from the topology napp."""
@@ -167,6 +163,18 @@ class Main(KytosNApp):
             log.warning("Failed to get topology napp for forcing topology update.")
             return
         topology = topology_napp.get_latest_topology()
+        self._update_to_topology(topology)
+
+    def _update_to_topology(
+        self,
+        topology
+    ):
+        if self._topology is topology:
+            return
 
         self._topology = topology
         self.graph.update_topology(topology)
+
+        switches = list(topology.switches.keys())
+        links = list(topology.links.keys())
+        log.debug(f"Topology graph updated with switches: {switches}, links: {links}.")
