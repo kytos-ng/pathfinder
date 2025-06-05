@@ -164,7 +164,7 @@ class Main(KytosNApp):
         try:
             topology_napp = self.controller.napps[("kytos", "topology")]
         except KeyError:
-            log.debug("Failed to get topology napp for forcing topology update.")
+            log.warning("Failed to get topology napp for forcing topology update.")
             return
         topology = topology_napp.get_latest_topology()
 
