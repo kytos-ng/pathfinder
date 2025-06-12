@@ -269,3 +269,52 @@ class TestMain:
         self.napp.controller.loop = asyncio.get_running_loop()
         res = await self.setting_shortest_constrained_path_exception(TypeError)
         assert res.status_code == 400
+
+    async def test_use_latest_topology(
+        self,
+    ):
+        """Test getting the latest topology"""
+        next_topology = MagicMock()
+        topology_napp = MagicMock()
+        topology_napp.get_latest_topology.return_value = next_topology
+        self.napp.controller.napps[("kytos", "topology")] = topology_napp
+
+        self.napp.graph = MagicMock()
+
+        self.napp._topology = None
+
+        self.napp._get_latest_topology()
+
+        assert self.napp._topology == next_topology
+        self.napp.graph.update_topology.assert_called_with(next_topology)
+
+    async def test_use_latest_topology_no_update(
+        self,
+    ):
+        """Test getting the latest topology"""
+        curr_topology = MagicMock()
+        topology_napp = MagicMock()
+        topology_napp.get_latest_topology.return_value = curr_topology
+        self.napp.controller.napps[("kytos", "topology")] = topology_napp
+
+        self.napp.graph = MagicMock()
+
+        self.napp._topology = curr_topology
+
+        self.napp._get_latest_topology()
+
+        assert self.napp._topology == curr_topology
+        self.napp.graph.update_topology.assert_not_called()
+
+    async def test_use_latest_topology_exception(
+        self,
+    ):
+        """Test failing to get the latest topology."""
+        self.napp.graph = MagicMock()
+
+        self.napp._topology = None
+
+        self.napp._get_latest_topology()
+
+        assert self.napp._topology is None
+        self.napp.graph.update_topology.assert_not_called()
