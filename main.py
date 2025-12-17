@@ -5,10 +5,15 @@ from threading import Lock
 from typing import Generator
 
 from kytos.core import KytosNApp, log, rest
-from kytos.core.helpers import listen_to, load_spec, validate_openapi
+from kytos.core.helpers import load_spec, validate_openapi
 from kytos.core.rest_api import (HTTPException, JSONResponse, Request,
                                  get_json_or_400)
+from kytos.core.retry import before_sleep
 from napps.kytos.pathfinder.graph import KytosGraph
+from tenacity import (retry, retry_if_exception_type, stop_after_attempt,
+                      wait_fixed)
+
+from .exceptions import LinkNotFound
 
 
 class Main(KytosNApp):
@@ -131,30 +136,20 @@ class Main(KytosNApp):
                     weight=spf_attr,
                 )
             log.debug(f"Found paths: {paths}")
-        except TypeError as err:
+        except (TypeError, LinkNotFound) as err:
             raise HTTPException(400, str(err))
 
         paths = self._filter_paths_le_cost(paths, max_cost=spf_max_path_cost)
         log.debug(f"Filtered paths: {paths}")
         return JSONResponse({"paths": paths})
 
-    @listen_to(
-        "kytos.topology.updated",
-        "kytos/topology.topology_loaded",
-        pool="dynamic_single"
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_fixed(1),
+        retry=retry_if_exception_type(LinkNotFound),
+        before_sleep=before_sleep,
+        reraise=True,
     )
-    def on_topology_updated(self, event):
-        """Update the graph when the network topology is updated."""
-        self.update_topology(event)
-
-    def update_topology(self, event):
-        """Update the graph when the network topology is updated."""
-        if "topology" not in event.content:
-            return
-        topology = event.content["topology"]
-        with self._lock:
-            self._update_to_topology(topology)
-
     def _get_latest_topology(self):
         """Get the latest topology from the topology napp."""
         try:
@@ -172,8 +167,8 @@ class Main(KytosNApp):
         if self._topology is topology:
             return
 
-        self._topology = topology
         self.graph.update_topology(topology)
+        self._topology = topology
 
         switches = list(topology.switches.keys())
         links = list(topology.links.keys())
