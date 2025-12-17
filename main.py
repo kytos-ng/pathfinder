@@ -136,8 +136,11 @@ class Main(KytosNApp):
                     weight=spf_attr,
                 )
             log.debug(f"Found paths: {paths}")
-        except (TypeError, LinkNotFound) as err:
+        except TypeError as err:
             raise HTTPException(400, str(err))
+        except LinkNotFound as err:
+            log.error(f"Link {err.link} not found in pathfinder graph.")
+            raise HTTPException(409, str(err))
 
         paths = self._filter_paths_le_cost(paths, max_cost=spf_max_path_cost)
         log.debug(f"Filtered paths: {paths}")

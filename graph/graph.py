@@ -122,9 +122,8 @@ class KytosGraph:
             try:
                 self.graph[endpoint_a][endpoint_b][key] = value
             except KeyError:
-                msg = ("Failed to get link from graph. Missing link"
-                       f" was from interfaces [{endpoint_a}, {endpoint_b}].")
-                raise LinkNotFound(msg)
+                msg = f"Failed to get link from graph. Missing component: {link}"
+                raise LinkNotFound(msg, link)
 
     def get_link_metadata(self, endpoint_a, endpoint_b):
         """Return the metadata of a link."""
