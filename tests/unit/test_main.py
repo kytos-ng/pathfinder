@@ -326,3 +326,17 @@ class TestMain:
         self.napp._get_latest_topology()
         assert self.napp._topology is not None
         assert mock_update_topology.call_count == 4
+
+    @patch("napps.kytos.pathfinder.graph.graph.KytosGraph.update_topology")
+    async def test_shortest_path_link_not_found(self, mock_update_topology):
+        """Test shortest_path when a link is not found and returns 409."""
+        self.napp.controller.loop = asyncio.get_running_loop()
+        self.napp.controller.napps[("kytos", "topology")] = MagicMock()
+        mock_update_topology.side_effect = LinkNotFound("")
+        data = {
+            "source": "00:00:00:00:00:00:00:01:1",
+            "destination": "00:00:00:00:00:00:00:03:1",
+            "spf_max_paths": 10
+        }
+        response = await self.api_client.post(self.endpoint, json=data)
+        assert response.status_code == 409
