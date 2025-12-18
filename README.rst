@@ -54,8 +54,7 @@ Events
 Subscribed
 ----------
 
-- ``kytos/topology.topology_loaded``
-- ``kytos/topology.updated``
+This NApps is not subscribed to any events.
 
 .. TAGs
 

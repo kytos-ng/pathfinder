@@ -1,12 +1,13 @@
 """Test Main methods."""
 import asyncio
+import pytest
 from unittest.mock import MagicMock, patch
 
-from kytos.core.events import KytosEvent
 from kytos.lib.helpers import get_controller_mock, get_test_client
 
 # pylint: disable=import-error
 from napps.kytos.pathfinder.main import Main
+from napps.kytos.pathfinder.exceptions import LinkNotFound
 from tests.helpers import get_topology_mock, get_topology_with_metadata
 
 
@@ -21,20 +22,11 @@ class TestMain:
         self.api_client = get_test_client(self.controller, self.napp)
         self.endpoint = "kytos/pathfinder/v3/"
 
-    def test_update_topology_success_case(self):
+    def test_update_to_topology_success_case(self):
         """Test update topology method to success case."""
         topology = get_topology_mock()
-        event = KytosEvent(
-            name="kytos.topology.updated", content={"topology": topology}
-        )
-        self.napp.update_topology(event)
+        self.napp._update_to_topology(topology)
         assert self.napp._topology == topology
-
-    def test_update_topology_failure_case(self):
-        """Test update topology method to failure case."""
-        event = KytosEvent(name="kytos.topology.updated")
-        self.napp.update_topology(event)
-        assert not self.napp._topology
 
     def setting_shortest_path_mocked(self, mock_shortest_paths):
         """Set the primary elements needed to test the retrieving
@@ -228,10 +220,7 @@ class TestMain:
         """Set the primary elements needed to test the topology
         update process under a "real-simulated" scenario."""
         topology = get_topology_with_metadata()
-        event = KytosEvent(
-            name="kytos.topology.updated", content={"topology": topology}
-        )
-        self.napp.update_topology(event)
+        self.napp._update_to_topology(topology)
 
     async def test_shortest_path(self):
         """Test shortest path."""
@@ -318,3 +307,36 @@ class TestMain:
 
         assert self.napp._topology is None
         self.napp.graph.update_topology.assert_not_called()
+
+    @patch("napps.kytos.pathfinder.graph.graph.KytosGraph.update_topology")
+    def test_get_latest_topology_retry(self, mock_update_topology):
+        """Test retry from _get_latest_topology method."""
+        self.napp._topology = None
+        self.napp.controller.napps[("kytos", "topology")] = MagicMock()
+        mock_update_topology.side_effect = LinkNotFound("")
+
+        with pytest.raises(LinkNotFound):
+            self.napp._get_latest_topology()
+
+        assert self.napp._topology is None
+        assert mock_update_topology.call_count == 3
+
+        mock_update_topology.side_effect = None
+
+        self.napp._get_latest_topology()
+        assert self.napp._topology is not None
+        assert mock_update_topology.call_count == 4
+
+    @patch("napps.kytos.pathfinder.graph.graph.KytosGraph.update_topology")
+    async def test_shortest_path_link_not_found(self, mock_update_topology):
+        """Test shortest_path when a link is not found and returns 409."""
+        self.napp.controller.loop = asyncio.get_running_loop()
+        self.napp.controller.napps[("kytos", "topology")] = MagicMock()
+        mock_update_topology.side_effect = LinkNotFound("")
+        data = {
+            "source": "00:00:00:00:00:00:00:01:1",
+            "destination": "00:00:00:00:00:00:00:03:1",
+            "spf_max_paths": 10
+        }
+        response = await self.api_client.post(self.endpoint, json=data)
+        assert response.status_code == 409

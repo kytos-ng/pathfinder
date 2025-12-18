@@ -9,10 +9,15 @@ All notable changes to the pathfinder NApp will be documented in this file.
 Fixed
 =====
 - Fixed potential race condition with pathfinding, regarding which version of the topology to use. Now should always use latest version.
+- pathfinder will no longer crash because of mismatched link when updating topology. Instead it will retry and log the interfaces involved if it does not succeed.
 
 Changed
 =======
 - Internal refactoring updating UI components to use ``pinia``
+
+Removed
+=======
+- The graph is not longer updated after every `topology.updated` event.
 
 [2025.1.0] - 2025-04-14
 ***********************
