@@ -6,6 +6,9 @@ All notable changes to the pathfinder NApp will be documented in this file.
 [UNRELEASED] - Under development
 ********************************
 
+[2025.2.0] - 2026-02-02
+***********************
+
 Fixed
 =====
 - Fixed potential race condition with pathfinding, regarding which version of the topology to use. Now should always use latest version.
