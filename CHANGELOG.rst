@@ -6,6 +6,10 @@ All notable changes to the pathfinder NApp will be documented in this file.
 [UNRELEASED] - Under development
 ********************************
 
+Fixed
+=====
+- The title of a table result not longer hides when scrolling down.
+
 [2025.2.0] - 2026-02-02
 ***********************
 
