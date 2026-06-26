@@ -51,7 +51,7 @@ class Main(KytosNApp):
             return endpoints
         endpoint_ids = self._map_endpoints_from_link_ids(links)
         for edge in self.graph.graph.edges:
-            if edge not in endpoint_ids:
+            if edge not in endpoint_ids and (edge[1], edge[0]) not in endpoint_ids:
                 endpoints.append(edge)
         return endpoints
 
