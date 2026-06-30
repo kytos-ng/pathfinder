@@ -216,6 +216,27 @@ class TestMain:
         non_excluded_edges = self.napp._non_excluded_edges(undesired)
         assert not non_excluded_edges
 
+    def test_filter_paths_response_on_undesired_reversed(self):
+        """Test filter paths when edges have reversed endpoints."""
+        self.napp._topology = get_topology_mock()
+        edges = [
+            (link.endpoint_b.id, link.endpoint_a.id)
+            for link in self.napp._topology.links.values()
+        ]
+        self.napp.graph.graph.edges = edges
+
+        undesired = ["1"]
+        non_excluded_edges = self.napp._non_excluded_edges(undesired)
+
+        assert non_excluded_edges == [
+            ("00:00:00:00:00:00:00:03:1", "00:00:00:00:00:00:00:01:2"),
+            ("00:00:00:00:00:00:00:03:2", "00:00:00:00:00:00:00:02:2"),
+        ]
+
+        undesired = ["1", "2", "3"]
+        non_excluded_edges = self.napp._non_excluded_edges(undesired)
+        assert not non_excluded_edges
+
     def setting_path(self):
         """Set the primary elements needed to test the topology
         update process under a "real-simulated" scenario."""

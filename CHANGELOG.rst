@@ -6,6 +6,13 @@ All notable changes to the pathfinder NApp will be documented in this file.
 [UNRELEASED] - Under development
 ********************************
 
+[2025.2.1] - 2026-06-25
+***********************
+
+Fixed
+=====
+- Fixed undesired links that used to leak because they were in a different order.
+
 [2025.2.0] - 2026-02-02
 ***********************
 
