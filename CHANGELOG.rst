@@ -9,6 +9,7 @@ All notable changes to the pathfinder NApp will be documented in this file.
 Fixed
 =====
 - The title of a table result not longer hides when scrolling down.
+- Fixed undesired links that used to leak because they were in a different order.
 
 [2025.2.0] - 2026-02-02
 ***********************
